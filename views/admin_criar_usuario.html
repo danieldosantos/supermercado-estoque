@@ -49,6 +49,13 @@
         senha: form.senha.value,
         role: form.role.value
       };
+
+      if (!dados.nome || !dados.email || !dados.senha) {
+        const msg = document.getElementById('mensagem');
+        msg.innerText = 'Preencha todos os campos.';
+        msg.style.color = 'red';
+        return;
+      }
       const res = await fetch('/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

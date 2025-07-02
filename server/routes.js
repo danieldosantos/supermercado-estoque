@@ -5,6 +5,9 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
+// Função simples para evitar XSS removendo < e > dos campos
+const sanitize = (str) => String(str).replace(/[<>]/g, '');
+
 // Sessões em memória
 const sessions = {};
 
@@ -38,6 +41,21 @@ function adminMiddleware(req, res, next) {
   }
   next();
 }
+
+// Remove tags HTML dos campos enviados nos formulários
+function sanitizeBody(req, _res, next) {
+  if (req.body && typeof req.body === 'object') {
+    for (const k of Object.keys(req.body)) {
+      if (typeof req.body[k] === 'string') {
+        req.body[k] = sanitize(req.body[k]);
+      }
+    }
+  }
+  next();
+}
+
+// Aplica sanitização a todas as rotas POST/PUT
+router.use(express.json(), sanitizeBody);
 
 const htmlPath = (page) => path.join(__dirname, '..', 'views', page);
 const publicPath = (page) => path.join(__dirname, '..', 'public', page);
@@ -124,8 +142,19 @@ router.put('/api/usuarios/:id/senha', authMiddleware, (req, res) => {
 // Produtos
 router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, codigo_barras, departamento, quantidade, validade, preco } = req.body;
+
+  if (!nome || !codigo_barras || !departamento || !preco) {
+    return res.status(400).json({ erro: 'Campos obrigatórios não preenchidos' });
+  }
+
+  const qtd = parseInt(quantidade, 10) || 0;
+  const precoNum = parseFloat(String(preco).replace(/[R$\s\.]/g, '').replace(',', '.'));
+  if (isNaN(precoNum)) {
+    return res.status(400).json({ erro: 'Preço inválido' });
+  }
+
   const sql = `INSERT INTO produtos (nome, codigo_barras, departamento, quantidade, validade, preco) VALUES (?, ?, ?, ?, ?, ?)`;
-  db.run(sql, [nome, codigo_barras, departamento, quantidade, validade, preco], function (err) {
+  db.run(sql, [nome, codigo_barras, departamento, qtd, validade, precoNum], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Criação', 'Produto', `Produto ${nome} criado`, 'Admin']);
@@ -154,8 +183,14 @@ router.get('/api/produtos', authMiddleware, (req, res) => {
 router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, departamento, quantidade, preco, validade } = req.body;
   const { id } = req.params;
+  const qtd = parseInt(quantidade, 10) || 0;
+  const precoNum = parseFloat(String(preco).replace(/[R$\s\.]/g, '').replace(',', '.'));
+  if (isNaN(precoNum)) {
+    return res.status(400).json({ erro: 'Preço inválido' });
+  }
+
   const sql = `UPDATE produtos SET nome = ?, departamento = ?, quantidade = ?, preco = ?, validade = ? WHERE id = ?`;
-  db.run(sql, [nome, departamento, quantidade, preco, validade, id], function (err) {
+  db.run(sql, [nome, departamento, qtd, precoNum, validade, id], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Edição', 'Produto', `Produto ID ${id} editado`, 'Admin']);
