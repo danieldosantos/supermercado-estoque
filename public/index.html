@@ -23,13 +23,9 @@
     <div class="card-grid" id="cards"></div>
   </main>
 
+  <script src="/js/main.js"></script>
   <script>
     const user = JSON.parse(localStorage.getItem('usuarioLogado'));
-
-    if (!user) {
-      alert('Sessão expirada. Faça login novamente.');
-      window.location.href = '/login';
-    }
 
     const cards = document.getElementById('cards');
     const linksAdmin = document.getElementById('links-admin');
@@ -51,6 +47,7 @@
       criarCard("/quebras", "❌ Registro de Quebras");
       criarCard("/saidas", "💰 Registro de Saídas");
       criarCard("/logs", "🕵️ Logs de Rastreio");
+      criarCard("/painel-admin", "📊 Painel Admin");
       criarCard("/admin-criar-usuario", "👤 Criar Novo Usuário");
 
       linksAdmin.innerHTML = `
@@ -58,14 +55,18 @@
         <a href="/quebras">❌ Quebras</a>
         <a href="/saidas">💰 Saídas</a>
         <a href="/logs">🕵️ Logs</a>
+        <a href="/painel-admin">📊 Painel</a>
         <a href="/admin-criar-usuario">👤 Novo Usuário</a>
       `;
     }
 
-    function logout() {
-      localStorage.removeItem('usuarioLogado');
-      window.location.href = '/login';
-    }
+    fetch('/api/notificacoes/baixo-estoque?limite=5')
+      .then(r => r.json())
+      .then(d => {
+        if (d.length) {
+          alert('Atenção: estoque baixo para ' + d.map(p => p.nome).join(', '));
+        }
+      });
   </script>
 </body>
 </html>

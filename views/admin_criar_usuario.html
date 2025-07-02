@@ -18,9 +18,10 @@
       </select>
       <button type="submit">Criar</button>
     </form>
-    <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+  <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
+  <script src="/js/main.js"></script>
   <script>
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
     if (!usuario || usuario.role !== 'admin') {
