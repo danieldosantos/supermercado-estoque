@@ -15,11 +15,13 @@
       <a href="/alterar-senha">🔐 Alterar Senha</a>
       <span id="links-admin"></span>
     </nav>
-    <button onclick="logout()" style="margin-left: auto;">Sair</button>
+    <button onclick="logout()" class="logout-btn" style="margin-left: auto;">Sair</button>
   </header>
+
   <main style="max-width: 400px; margin: auto; padding-top: 60px;">
     <a href="/" class="back-link">&larr; Início</a>
     <h2>Criar Novo Usuário</h2>
+
     <form id="form-criar-usuario" class="form-container">
       <div class="form-group">
         <input type="text" name="nome" placeholder="Nome" required>
@@ -40,7 +42,8 @@
         <button type="submit">Criar</button>
       </div>
     </form>
-  <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+
+    <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
   <script src="/js/main.js"></script>
@@ -60,24 +63,25 @@
         role: form.role.value
       };
 
+      const msg = document.getElementById('mensagem');
+
       if (!dados.nome || !dados.email || !dados.senha) {
-        const msg = document.getElementById('mensagem');
         msg.innerText = 'Preencha todos os campos.';
         msg.style.color = 'red';
         return;
       }
+
       const res = await fetch('/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
       });
+
       const resp = await res.json();
-      const msg = document.getElementById('mensagem');
       msg.innerText = res.ok ? 'Usuário criado com sucesso!' : `Erro: ${resp.erro}`;
-    msg.style.color = res.ok ? 'green' : 'red';
-  });
-  </script>
-  <script>
+      msg.style.color = res.ok ? 'green' : 'red';
+    });
+
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
     const linksAdmin = document.getElementById('links-admin');
     if (user.role === 'admin') {

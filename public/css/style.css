@@ -31,6 +31,10 @@ nav a:hover {
   text-decoration: underline;
 }
 
+header .logout-btn {
+  margin-left: auto;
+}
+
 button {
   background-color: #333;
   color: #fff;
@@ -50,6 +54,22 @@ select {
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+  margin: auto;
+  padding-top: 60px;
+}
+
+/* Agrupamento de inputs e labels */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
 
 .back-link {
@@ -145,7 +165,7 @@ h1 {
   background-color: #f9f9f9;
 }
 
-/* Legend for admin chart */
+/* Legenda do gráfico no painel admin */
 #legenda {
   text-align: center;
   margin-top: 10px;
