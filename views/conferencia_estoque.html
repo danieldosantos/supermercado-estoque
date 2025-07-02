@@ -63,7 +63,7 @@
         <input type="text" id="edit-nome" placeholder="Nome"><br>
         <input type="text" id="edit-departamento" placeholder="Departamento"><br>
         <input type="number" id="edit-quantidade" placeholder="Quantidade"><br>
-        <input type="number" step="0.01" id="edit-preco" placeholder="Preço"><br>
+        <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)"><br>
         <input type="date" id="edit-validade"><br>
         <button type="submit">Salvar</button>
         <button type="button" onclick="fecharModal()">Cancelar</button>
@@ -92,7 +92,7 @@
           <td>${p.nome}</td>
           <td>${p.departamento}</td>
           <td>${p.quantidade}</td>
-          <td>${Number(p.preco).toFixed(2)}</td>
+          <td>R$ ${Number(p.preco).toFixed(2)}</td>
           <td>${p.validade || '-'}</td>
           <td>${p.data_entrada || '-'}</td>
           <td>
@@ -125,7 +125,7 @@
       document.getElementById('edit-nome').value = decodeURIComponent(nome);
       document.getElementById('edit-departamento').value = decodeURIComponent(departamento);
       document.getElementById('edit-quantidade').value = quantidade;
-      document.getElementById('edit-preco').value = preco;
+      document.getElementById('edit-preco').value = 'R$ ' + Number(preco).toFixed(2).replace('.', ',');
       document.getElementById('edit-validade').value = decodeURIComponent(validade);
       document.getElementById('modalEdicao').style.display = 'block';
     }
@@ -134,6 +134,13 @@
       document.getElementById('modalEdicao').style.display = 'none';
     }
 
+    document.getElementById('edit-preco').addEventListener('input', e => {
+      let v = e.target.value.replace(/\D/g, '');
+      v = (parseFloat(v) / 100).toFixed(2);
+      v = v.replace('.', ',');
+      e.target.value = 'R$ ' + v;
+    });
+
     document.getElementById('formEditar').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('edit-id').value;
@@ -141,7 +148,7 @@
         nome: document.getElementById('edit-nome').value,
         departamento: document.getElementById('edit-departamento').value,
         quantidade: document.getElementById('edit-quantidade').value,
-        preco: document.getElementById('edit-preco').value,
+        preco: parseFloat(document.getElementById('edit-preco').value.replace(/[^0-9,]/g, '').replace(',', '.')),
         validade: document.getElementById('edit-validade').value
       };
       const res = await fetch(`/api/produtos/${id}`, {

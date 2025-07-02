@@ -24,6 +24,11 @@
       const email = form.email.value;
       const senha = form.senha.value;
 
+      if (!email || !senha) {
+        document.getElementById('erro').innerText = 'Preencha todos os campos.';
+        return;
+      }
+
       try {
         const res = await fetch('/api/login', {
           method: 'POST',
