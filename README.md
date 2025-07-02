@@ -10,3 +10,59 @@ Sistema simples de controle de estoque com:
 - HTML, CSS, JavaScript
 - Node.js com Express
 - SQLite (banco de dados leve e embutido)
+
+## Instalação
+
+1. Instale as dependências do projeto:
+
+   ```bash
+   npm install
+   ```
+
+2. O banco de dados SQLite é criado automaticamente na primeira execução.
+
+## Inicialização
+
+Para iniciar o servidor execute:
+
+```bash
+npm start
+```
+
+O servidor será iniciado em `http://localhost:3000`.
+
+## Primeiro usuário admin
+
+O sistema cria um administrador padrão (e-mail `admin` e senha `admin12345`) na
+primeira inicialização. Caso precise recriá‑lo manualmente, rode:
+
+```bash
+node server/criarAdmin.js
+```
+
+## Endpoints da API
+
+Autenticação e usuários:
+
+- `POST /api/login` – realiza login (body: `email`, `senha`).
+- `POST /api/logout` – encerra a sessão.
+- `POST /api/usuarios` – cria usuário (admin).
+- `PUT /api/usuarios/:id/senha` – altera senha.
+
+Produtos:
+
+- `POST /api/produtos` – cadastra produto (admin).
+- `GET /api/produtos` – lista produtos (`departamento` e `busca` como query).
+- `PUT /api/produtos/:id` – edita produto (admin).
+- `DELETE /api/produtos/:id` – remove produto (admin).
+- `GET /api/produtos/export/csv` – exporta lista em CSV.
+- `GET /api/notificacoes/baixo-estoque` – avisa itens com baixo estoque.
+- `GET /api/logs` – lista logs (admin).
+
+## Testes
+
+Quando os testes forem implementados, execute-os com:
+
+```bash
+npm test
+```
