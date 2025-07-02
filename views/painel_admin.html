@@ -20,7 +20,7 @@
   </header>
   <main>
     <a href="/" class="back-link">&larr; Início</a>
-    <h1>Estoque por Departamento</h1>
+    <h1>Estoque por Produto</h1>
     <canvas id="graficoEstoque"></canvas>
   </main>
 
@@ -29,20 +29,34 @@
     async function carregarGrafico() {
       const res = await fetch('/api/produtos');
       const produtos = await res.json();
-      const totals = {};
-      produtos.forEach(p => {
-        totals[p.departamento] = (totals[p.departamento] || 0) + p.quantidade;
-      });
+
+      const cores = {
+        Hortifruti: '#7cb5ec',
+        Mercearia: '#f7a35c',
+        Padaria: '#90ed7d',
+        Açougue: '#8085e9',
+        Bebidas: '#f15c80'
+      };
+
+      const labels = produtos.map(p => p.nome);
+      const data = produtos.map(p => p.quantidade);
+      const bgColors = produtos.map(p => cores[p.departamento] || 'rgba(75,192,192,0.6)');
+
       const ctx = document.getElementById('graficoEstoque');
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: Object.keys(totals),
+          labels,
           datasets: [{
             label: 'Quantidade',
-            backgroundColor: 'rgba(75,192,192,0.6)',
-            data: Object.values(totals)
+            backgroundColor: bgColors,
+            data
           }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false }
+          }
         }
       });
     }
