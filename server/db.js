@@ -1,6 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const loadEnv = require('../loadEnv');
+
+// Carrega variáveis de ambiente do arquivo .env se existir
+loadEnv();
 
 // Caminho do arquivo do banco
 const dbPath = process.env.DB_PATH
