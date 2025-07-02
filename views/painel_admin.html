@@ -22,6 +22,7 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Estoque por Produto</h1>
     <canvas id="graficoEstoque"></canvas>
+    <div id="legenda"></div>
   </main>
 
   <script src="/js/main.js"></script>
@@ -55,10 +56,23 @@
         },
         options: {
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const produto = produtos[context.dataIndex];
+                  return `${produto.nome} (${produto.departamento}): ${produto.quantidade}`;
+                }
+              }
+            }
           }
         }
       });
+
+      const legenda = document.getElementById('legenda');
+      legenda.innerHTML = Object.keys(cores).map(dep =>
+        `<span class="legenda-item"><span class="legenda-cor" style="background:${cores[dep]}"></span>${dep}</span>`
+      ).join(' ');
     }
     carregarGrafico();
   </script>
