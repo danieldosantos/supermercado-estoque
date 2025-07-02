@@ -23,7 +23,7 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Conferência de Saídas</h1>
 
-    <form id="filtros">
+    <form id="filtros" class="form-container">
       <div class="form-group">
         <label>Departamento:</label>
         <select name="departamento"><option value="">Todos</option></select>
@@ -40,7 +40,9 @@
         <label>Dia:</label>
         <input type="number" name="dia" min="1" max="31">
       </div>
-      <button type="submit">Filtrar</button>
+      <div class="form-group">
+        <button type="submit">Filtrar</button>
+      </div>
     </form>
 
     <table>

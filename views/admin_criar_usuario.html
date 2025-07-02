@@ -15,12 +15,14 @@
       <a href="/alterar-senha">🔐 Alterar Senha</a>
       <span id="links-admin"></span>
     </nav>
-    <button onclick="logout()" class="logout-btn">Sair</button>
+    <button onclick="logout()" class="logout-btn" style="margin-left: auto;">Sair</button>
   </header>
+
   <main style="max-width: 400px; margin: auto; padding-top: 60px;">
     <a href="/" class="back-link">&larr; Início</a>
     <h2>Criar Novo Usuário</h2>
-    <form id="form-criar-usuario" style="display: flex; flex-direction: column;">
+
+    <form id="form-criar-usuario" class="form-container">
       <div class="form-group">
         <input type="text" name="nome" placeholder="Nome" required>
       </div>
@@ -36,8 +38,11 @@
           <option value="admin">Administrador</option>
         </select>
       </div>
-      <button type="submit">Criar</button>
+      <div class="form-group">
+        <button type="submit">Criar</button>
+      </div>
     </form>
+
     <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
@@ -76,8 +81,7 @@
       msg.innerText = res.ok ? 'Usuário criado com sucesso!' : `Erro: ${resp.erro}`;
       msg.style.color = res.ok ? 'green' : 'red';
     });
-  </script>
-  <script>
+
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
     const linksAdmin = document.getElementById('links-admin');
     if (user.role === 'admin') {

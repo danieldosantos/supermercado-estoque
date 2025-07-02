@@ -71,6 +71,14 @@ node server/criarAdmin.js
 - `GET /api/notificacoes/baixo-estoque` – avisa itens com baixo estoque.
 - `GET /api/logs` – lista logs (admin).
 
+### Estilo de formulários
+
+Os formulários usam as classes `.form-container` e `.form-group` definidas em
+`public/css/style.css`. Aplique `.form-container` na tag `<form>` para alinhar os
+campos em coluna e centralizar a largura, utilizando espaçamento consistente.
+Utilize `.form-group` para envolver cada conjunto de campos e manter margens
+uniformes.
+
 ## Testes
 
 Quando os testes forem implementados, execute-os com:

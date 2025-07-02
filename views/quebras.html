@@ -23,9 +23,9 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Registro de Quebras</h1>
 
-    <form id="formQuebra">
+    <form id="formQuebra" class="form-container">
       <div class="form-group">
-        <label for="produto">Produto:</label>
+        <label for="produto">Produto:</label><br>
         <select id="produto" required>
           <option value="">Selecione um produto</option>
         </select>
@@ -36,7 +36,9 @@
       <div class="form-group">
         <input type="text" name="valor_quebra" id="valor_quebra" placeholder="Valor Total da Quebra (R$)" required>
       </div>
-      <button type="submit">Registrar Quebra</button>
+      <div class="form-group">
+        <button type="submit">Registrar Quebra</button>
+      </div>
     </form>
 
     <script src="/js/main.js"></script>
@@ -69,7 +71,7 @@
 
         const res = await fetch('/api/quebras', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dados)
         });
 
@@ -95,7 +97,6 @@
         `;
       }
     </script>
-
   </main>
 
 </body>

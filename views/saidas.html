@@ -23,9 +23,9 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Registro de Saídas</h1>
 
-    <form id="formSaida">
+    <form id="formSaida" class="form-container">
       <div class="form-group">
-        <label for="produto">Produto:</label>
+        <label for="produto">Produto:</label><br>
         <select id="produto" required>
           <option value="">Selecione um produto</option>
         </select>
@@ -36,7 +36,9 @@
       <div class="form-group">
         <input type="text" name="valor_saida" id="valor_saida" placeholder="Valor Total da Venda (R$)" required>
       </div>
-      <button type="submit">Registrar Saída</button>
+      <div class="form-group">
+        <button type="submit">Registrar Saída</button>
+      </div>
     </form>
 
     <script src="/js/main.js"></script>
@@ -54,7 +56,6 @@
         });
       }
 
-      // Máscara de moeda para valor da saída
       document.getElementById('valor_saida').addEventListener('input', e => {
         let v = e.target.value.replace(/\D/g, '');
         v = (parseFloat(v) / 100).toFixed(2);
@@ -81,9 +82,7 @@
       });
 
       carregarProdutos();
-    </script>
 
-    <script>
       const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
       const linksAdmin = document.getElementById('links-admin');
       if (user.role === 'admin') {

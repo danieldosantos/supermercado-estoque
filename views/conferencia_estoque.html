@@ -23,7 +23,7 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Conferência de Estoque</h1>
 
-    <form id="filtros">
+    <form id="filtros" class="form-container">
       <div class="form-group">
         <label>Departamento:</label>
         <select name="departamento" id="departamento">
@@ -39,7 +39,9 @@
           <option value="Mercearia">Mercearia</option>
         </select>
       </div>
-      <button type="submit">Filtrar</button>
+      <div class="form-group">
+        <button type="submit">Filtrar</button>
+      </div>
     </form>
 
     <table>
@@ -77,8 +79,10 @@
         <div class="form-group">
           <input type="date" id="edit-validade">
         </div>
-        <button type="submit">Salvar</button>
-        <button type="button" onclick="fecharModal()">Cancelar</button>
+        <div class="form-group">
+          <button type="submit">Salvar</button>
+          <button type="button" onclick="fecharModal()">Cancelar</button>
+        </div>
       </form>
     </div>
 
@@ -179,6 +183,7 @@
 
     carregarEstoque();
   </script>
+
   <script>
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
     const linksAdmin = document.getElementById('links-admin');

@@ -16,13 +16,14 @@
       <a href="/alterar-senha">🔐 Alterar Senha</a>
       <span id="links-admin"></span>
     </nav>
-    <button onclick="logout()" class="logout-btn">Sair</button>
+    <button onclick="logout()" class="logout-btn" style="margin-left: auto;">Sair</button>
   </header>
 
   <main>
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Cadastro de Produto</h1>
-    <form id="formCadastro">
+
+    <form id="formCadastro" class="form-container">
       <div class="form-group">
         <input type="text" name="nome" placeholder="Nome do Produto" required>
       </div>
@@ -60,7 +61,9 @@
         <label for="validade">Data de Validade:</label>
         <input type="date" id="validade" name="validade">
       </div>
-      <button type="submit">Cadastrar</button>
+      <div class="form-group">
+        <button type="submit">Cadastrar</button>
+      </div>
       <p id="msg-erro" style="color:red"></p>
     </form>
 
