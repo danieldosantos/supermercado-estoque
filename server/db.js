@@ -3,7 +3,9 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 
 // Caminho do arquivo do banco
-const dbPath = path.resolve(__dirname, 'estoque.sqlite');
+const dbPath = process.env.DB_PATH
+  ? path.resolve(__dirname, process.env.DB_PATH)
+  : path.resolve(__dirname, 'estoque.sqlite');
 
 // Conecta ao banco (cria se não existir)
 const db = new sqlite3.Database(dbPath, (err) => {
