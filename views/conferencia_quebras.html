@@ -22,76 +22,84 @@
   <main>
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Conferência de Quebras</h1>
-<form id="filtros">
-  <div class="form-group">
-    <label>Departamento:</label>
-    <select name="departamento"><option value="">Todos</option></select>
-  </div>
-  <div class="form-group">
-    <label>Ano:</label>
-    <input type="number" name="ano" min="2000" max="2100">
-  </div>
-  <div class="form-group">
-    <label>Mês:</label>
-    <input type="number" name="mes" min="1" max="12">
-  </div>
-  <div class="form-group">
-    <label>Dia:</label>
-    <input type="number" name="dia" min="1" max="31">
-  </div>
-  <button type="submit">Filtrar</button>
-</form>
-<table><thead><tr>
-<th>ID</th><th>Produto</th><th>Departamento</th><th>Quantidade</th><th>Valor</th><th>Data</th>
-</tr></thead><tbody id="tabela"></tbody></table>
-<script src="/js/main.js"></script>
-<script>
-// JavaScript para buscar e exibir quebras
-</script>
-  
-<script>
-  document.getElementById('filtros').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const dados = Object.fromEntries(new FormData(e.target));
-    const query = new URLSearchParams(dados).toString();
-    const res = await fetch('/api/quebras?' + query);
-    const quebras = await res.json();
 
-    const tbody = document.getElementById('tabela');
-    tbody.innerHTML = '';
-    quebras.forEach(q => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${q.id}</td>
-        <td>${q.produto}</td>
-        <td>${q.departamento}</td>
-        <td>${q.quantidade}</td>
-        <td>R$ ${Number(q.valor_quebra).toFixed(2)}</td>
-        <td>${q.data_quebra}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  });
+    <form id="filtros">
+      <div class="form-group">
+        <label>Departamento:</label>
+        <select name="departamento"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group">
+        <label>Ano:</label>
+        <input type="number" name="ano" min="2000" max="2100">
+      </div>
+      <div class="form-group">
+        <label>Mês:</label>
+        <input type="number" name="mes" min="1" max="12">
+      </div>
+      <div class="form-group">
+        <label>Dia:</label>
+        <input type="number" name="dia" min="1" max="31">
+      </div>
+      <button type="submit">Filtrar</button>
+    </form>
 
-  document.getElementById('filtros').dispatchEvent(new Event('submit'));
-</script>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Departamento</th>
+          <th>Quantidade</th>
+          <th>Valor</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
 
-<script>
-  const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
-  const linksAdmin = document.getElementById('links-admin');
-  if (user.role === 'admin') {
-    linksAdmin.innerHTML = `
-      <a href="/cadastro">📦 Cadastro</a>
-      <a href="/quebras">❌ Quebras</a>
-      <a href="/saidas">💰 Saídas</a>
-      <a href="/logs">🕵️ Logs</a>
-      <a href="/painel-admin">📊 Painel</a>
-      <a href="/admin-criar-usuario">👤 Novo Usuário</a>
-    `;
-  }
-</script>
+    <script src="/js/main.js"></script>
+    <script>
+      document.getElementById('filtros').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dados = Object.fromEntries(new FormData(e.target));
+        const query = new URLSearchParams(dados).toString();
+        const res = await fetch('/api/quebras?' + query);
+        const quebras = await res.json();
 
-</main>
+        const tbody = document.getElementById('tabela');
+        tbody.innerHTML = '';
+        quebras.forEach(q => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${q.id}</td>
+            <td>${q.produto}</td>
+            <td>${q.departamento}</td>
+            <td>${q.quantidade}</td>
+            <td>R$ ${Number(q.valor_quebra).toFixed(2)}</td>
+            <td>${q.data_quebra}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+      document.getElementById('filtros').dispatchEvent(new Event('submit'));
+    </script>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
+      const linksAdmin = document.getElementById('links-admin');
+      if (user.role === 'admin') {
+        linksAdmin.innerHTML = `
+          <a href="/cadastro">📦 Cadastro</a>
+          <a href="/quebras">❌ Quebras</a>
+          <a href="/saidas">💰 Saídas</a>
+          <a href="/logs">🕵️ Logs</a>
+          <a href="/painel-admin">📊 Painel</a>
+          <a href="/admin-criar-usuario">👤 Novo Usuário</a>
+        `;
+      }
+    </script>
+  </main>
 
 </body>
 </html>

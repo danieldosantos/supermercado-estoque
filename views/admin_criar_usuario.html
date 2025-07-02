@@ -38,7 +38,7 @@
       </div>
       <button type="submit">Criar</button>
     </form>
-  <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+    <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
   <script src="/js/main.js"></script>
@@ -58,22 +58,24 @@
         role: form.role.value
       };
 
+      const msg = document.getElementById('mensagem');
+
       if (!dados.nome || !dados.email || !dados.senha) {
-        const msg = document.getElementById('mensagem');
         msg.innerText = 'Preencha todos os campos.';
         msg.style.color = 'red';
         return;
       }
+
       const res = await fetch('/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
       });
+
       const resp = await res.json();
-      const msg = document.getElementById('mensagem');
       msg.innerText = res.ok ? 'Usuário criado com sucesso!' : `Erro: ${resp.erro}`;
-    msg.style.color = res.ok ? 'green' : 'red';
-  });
+      msg.style.color = res.ok ? 'green' : 'red';
+    });
   </script>
   <script>
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
