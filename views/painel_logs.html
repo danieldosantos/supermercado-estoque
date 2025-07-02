@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Logs de Rastreio</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div><strong>Estoque do Supermercado</strong></div>
+  <nav>
+    <a href="/cadastro">Cadastro</a>
+    <a href="/quebras">Quebras</a>
+    <a href="/saidas">Saídas</a>
+    <a href="/conferencia-estoque">Estoque</a>
+    <a href="/conferencia-quebras">Conferência de Quebras</a>
+    <a href="/conferencia-saidas">Conferência de Saídas</a>
+    <a href="/logs">Logs</a>
+  </nav>
+</header>
+
+<main class="logs-container">
+  <h1>Logs de Rastreio</h1>
+
+  <table class="logs-table">
+    <thead>
+      <tr>
+        <th>Data/Hora</th>
+        <th>Usuário</th>
+        <th>Ação</th>
+        <th>Detalhes</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-logs"></tbody>
+  </table>
+</main>
+
+<script>
+  async function carregarLogs() {
+    const res = await fetch('/api/logs');
+    const logs = await res.json();
+    const tbody = document.getElementById('tabela-logs');
+    tbody.innerHTML = '';
+
+    logs.forEach(log => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${log.data_hora}</td>
+        <td>${log.usuario}</td>
+        <td>${log.acao}</td>
+        <td>${log.detalhes}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  carregarLogs();
+</script>
+
+</body>
+</html>

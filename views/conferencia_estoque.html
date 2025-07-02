@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Conferência de Estoque</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header>
+    <div><strong>Estoque do Supermercado</strong></div>
+    <nav>
+      <a href="/cadastro">Cadastro</a>
+      <a href="/quebras">Quebras</a>
+      <a href="/saidas">Saídas</a>
+      <a href="/conferencia-estoque">Estoque</a>
+      <a href="/conferencia-quebras">Conferência de Quebras</a>
+      <a href="/conferencia-saidas">Conferência de Saídas</a>
+      <a href="/logs">Logs</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Conferência de Estoque</h1>
+
+    <form id="filtros">
+      <label>Departamento:</label>
+      <select name="departamento" id="departamento">
+        <option value="">Todos</option>
+        <option value="Padaria">Padaria</option>
+        <option value="Açougue">Açougue</option>
+        <option value="Hortifruti">Hortifruti</option>
+        <option value="Bebidas">Bebidas</option>
+        <option value="Limpeza">Limpeza</option>
+        <option value="Higiene">Higiene</option>
+        <option value="Congelados">Congelados</option>
+        <option value="Laticínios">Laticínios</option>
+        <option value="Mercearia">Mercearia</option>
+      </select>
+      <button type="submit">Filtrar</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Departamento</th>
+          <th>Quantidade</th>
+          <th>Preço</th>
+          <th>Validade</th>
+          <th>Entrada</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+
+    <div id="modalEdicao" style="display:none; background:#fff; padding:20px; border:1px solid #ccc; margin-top:20px;">
+      <h3>Editar Produto</h3>
+      <form id="formEditar">
+        <input type="hidden" id="edit-id">
+        <input type="text" id="edit-nome" placeholder="Nome"><br>
+        <input type="text" id="edit-departamento" placeholder="Departamento"><br>
+        <input type="number" id="edit-quantidade" placeholder="Quantidade"><br>
+        <input type="number" step="0.01" id="edit-preco" placeholder="Preço"><br>
+        <input type="date" id="edit-validade"><br>
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="fecharModal()">Cancelar</button>
+      </form>
+    </div>
+
+  </main>
+
+  <script>
+    async function carregarEstoque() {
+      const departamento = document.querySelector('#departamento').value;
+      const res = await fetch('/api/produtos?departamento=' + departamento);
+      const produtos = await res.json();
+      const tbody = document.getElementById('tabela');
+      tbody.innerHTML = '';
+
+      produtos.forEach(p => {
+        const nome = encodeURIComponent(p.nome);
+        const departamento = encodeURIComponent(p.departamento);
+        const validade = p.validade ? encodeURIComponent(p.validade) : '';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.nome}</td>
+          <td>${p.departamento}</td>
+          <td>${p.quantidade}</td>
+          <td>${Number(p.preco).toFixed(2)}</td>
+          <td>${p.validade || '-'}</td>
+          <td>${p.data_entrada || '-'}</td>
+          <td>
+            <button onclick="editarProduto(${p.id}, '${nome}', '${departamento}', ${p.quantidade}, ${p.preco}, '${validade}')">✏️ Editar</button>
+            <button onclick="deletarProduto(${p.id})">🗑️ Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('filtros').addEventListener('submit', (e) => {
+      e.preventDefault();
+      carregarEstoque();
+    });
+
+    async function deletarProduto(id) {
+      if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+      const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Produto excluído com sucesso.');
+        carregarEstoque();
+      } else {
+        alert('Erro ao excluir produto.');
+      }
+    }
+
+    function editarProduto(id, nome, departamento, quantidade, preco, validade) {
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-nome').value = decodeURIComponent(nome);
+      document.getElementById('edit-departamento').value = decodeURIComponent(departamento);
+      document.getElementById('edit-quantidade').value = quantidade;
+      document.getElementById('edit-preco').value = preco;
+      document.getElementById('edit-validade').value = decodeURIComponent(validade);
+      document.getElementById('modalEdicao').style.display = 'block';
+    }
+
+    function fecharModal() {
+      document.getElementById('modalEdicao').style.display = 'none';
+    }
+
+    document.getElementById('formEditar').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-id').value;
+      const dados = {
+        nome: document.getElementById('edit-nome').value,
+        departamento: document.getElementById('edit-departamento').value,
+        quantidade: document.getElementById('edit-quantidade').value,
+        preco: document.getElementById('edit-preco').value,
+        validade: document.getElementById('edit-validade').value
+      };
+      const res = await fetch(`/api/produtos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      if (res.ok) {
+        alert('Produto atualizado com sucesso.');
+        fecharModal();
+        carregarEstoque();
+      } else {
+        alert('Erro ao atualizar produto.');
+      }
+    });
+
+    carregarEstoque();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Produto</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header>
+    <div><strong>Estoque do Supermercado</strong></div>
+    <nav>
+      <a href="/cadastro">Cadastro</a>
+      <a href="/quebras">Quebras</a>
+      <a href="/saidas">Saídas</a>
+      <a href="/conferencia-estoque">Estoque</a>
+      <a href="/conferencia-quebras">Conferência de Quebras</a>
+      <a href="/conferencia-saidas">Conferência de Saídas</a>
+      <a href="/logs">Logs</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Cadastro de Produto</h1>
+    <form id="formCadastro">
+      <input type="text" name="nome" placeholder="Nome do Produto" required><br>
+      <input type="text" name="codigo_barras" placeholder="Código de Barras" required><br>
+
+      <label for="departamento">Departamento:</label><br>
+      <select name="departamento" id="departamento" required>
+        <option value="">Selecione um departamento</option>
+        <option>Hortifruti</option>
+        <option>Açougue</option>
+        <option>Padaria</option>
+        <option>Frios e Laticínios</option>
+        <option>Bebidas</option>
+        <option>Mercearia</option>
+        <option>Higiene e Beleza</option>
+        <option>Limpeza</option>
+        <option>Utilidades Domésticas</option>
+        <option>Pet Shop</option>
+        <option>Eletrodomésticos</option>
+        <option>Bazar</option>
+        <option>Congelados</option>
+        <option>Produtos Naturais</option>
+        <option>Bebê</option>
+      </select><br>
+
+      <input type="number" name="quantidade" placeholder="Quantidade" required><br>
+      <input type="number" step="0.01" name="preco" placeholder="Preço" required><br>
+
+      <label for="validade">Data de Validade:</label><br>
+      <input type="date" id="validade" name="validade"><br>
+
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <script>
+      document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const dados = Object.fromEntries(new FormData(form));
+
+        const res = await fetch('/api/produtos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+
+        const resultado = await res.json();
+        alert('Produto cadastrado com ID: ' + resultado.id);
+        form.reset();
+      });
+    </script>
+  </main>
+
+</body>
+</html>

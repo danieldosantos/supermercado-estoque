@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Criar Novo Usuário</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main style="max-width: 400px; margin: auto; padding-top: 60px;">
+    <h2>Criar Novo Usuário</h2>
+    <form id="form-criar-usuario" style="display: flex; flex-direction: column; gap: 10px;">
+      <input type="text" name="nome" placeholder="Nome" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="senha" placeholder="Senha" required>
+      <select name="role" required>
+        <option value="operador">Operador</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <button type="submit">Criar</button>
+    </form>
+    <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+  </main>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (!usuario || usuario.role !== 'admin') {
+      window.location.href = '/login';
+    }
+
+    document.getElementById('form-criar-usuario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const dados = {
+        nome: form.nome.value,
+        email: form.email.value,
+        senha: form.senha.value,
+        role: form.role.value
+      };
+      const res = await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      const resp = await res.json();
+      const msg = document.getElementById('mensagem');
+      msg.innerText = res.ok ? 'Usuário criado com sucesso!' : `Erro: ${resp.erro}`;
+      msg.style.color = res.ok ? 'green' : 'red';
+    });
+  </script>
+</body>
+</html>

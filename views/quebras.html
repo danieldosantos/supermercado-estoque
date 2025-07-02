@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Quebras</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header>
+    <div><strong>Estoque do Supermercado</strong></div>
+    <nav>
+      <a href="/cadastro">Cadastro</a>
+      <a href="/quebras">Quebras</a>
+      <a href="/saidas">Saídas</a>
+      <a href="/conferencia-estoque">Estoque</a>
+      <a href="/conferencia-quebras">Conferência de Quebras</a>
+      <a href="/conferencia-saidas">Conferência de Saídas</a>
+      <a href="/logs">Logs</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Registro de Quebras</h1>
+<form id="formQuebra">
+  <label for="produto">Produto:</label><br>
+  <select id="produto" required><option value="">Selecione um produto</option></select><br>
+  <input type="number" name="quantidade" placeholder="Quantidade Quebrada" required><br>
+  <input type="number" step="0.01" name="valor_quebra" placeholder="Valor Total da Quebra" required><br>
+  <button type="submit">Registrar Quebra</button>
+</form>
+<script>
+// JavaScript para carregar produtos e enviar quebra
+</script>
+  
+<script>
+  async function carregarProdutos() {
+    const res = await fetch('/api/produtos');
+    const produtos = await res.json();
+    const select = document.getElementById('produto');
+    produtos.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.nome;
+      select.appendChild(opt);
+    });
+  }
+
+  document.getElementById('formQuebra').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const produto_id = document.getElementById('produto').value;
+    const dados = Object.fromEntries(new FormData(e.target));
+    dados.produto_id = produto_id;
+
+    const res = await fetch('/api/quebras', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(dados)
+    });
+
+    const r = await res.json();
+    alert('Quebra registrada com ID: ' + r.id);
+    e.target.reset();
+  });
+
+  carregarProdutos();
+</script>
+
+</main>
+
+</body>
+</html>

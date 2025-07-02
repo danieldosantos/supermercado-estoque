@@ -1,0 +1,21 @@
+{
+  "name": "supermercado-estoque",
+  "version": "1.0.0",
+  "description": "Sistema simples de controle de estoque com:\r - Cadastro de produtos\r - Registro de quebras\r - Registro de saídas (vendas)\r - Conferência de validade, quantidade e preço",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "sqlite3": "^5.1.7"
+  }
+}

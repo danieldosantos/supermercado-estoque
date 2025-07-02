@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema de Estoque do Supermercado</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header>
+    <div><strong>Estoque do Supermercado</strong></div>
+    <nav>
+      <a href="/conferencia-estoque">📋 Conferência de Estoque</a>
+      <a href="/conferencia-quebras">📉 Conferência de Quebras</a>
+      <a href="/conferencia-saidas">📈 Conferência de Saídas</a>
+      <a href="/alterar-senha">🔐 Alterar Senha</a>
+      <span id="links-admin"></span>
+    </nav>
+    <button onclick="logout()" style="margin-left: auto;">Sair</button>
+  </header>
+
+  <main>
+    <h1>Bem-vindo ao Sistema de Estoque</h1>
+    <div class="card-grid" id="cards"></div>
+  </main>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+
+    if (!user) {
+      alert('Sessão expirada. Faça login novamente.');
+      window.location.href = '/login';
+    }
+
+    const cards = document.getElementById('cards');
+    const linksAdmin = document.getElementById('links-admin');
+
+    const criarCard = (href, texto) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `<a href="${href}">${texto}</a>`;
+      cards.appendChild(div);
+    };
+
+    criarCard("/conferencia-estoque", "📋 Conferência de Estoque");
+    criarCard("/conferencia-quebras", "📉 Conferência de Quebras");
+    criarCard("/conferencia-saidas", "📈 Conferência de Saídas");
+    criarCard("/alterar-senha", "🔐 Alterar Senha");
+
+    if (user.role === 'admin') {
+      criarCard("/cadastro", "📦 Cadastro de Produto");
+      criarCard("/quebras", "❌ Registro de Quebras");
+      criarCard("/saidas", "💰 Registro de Saídas");
+      criarCard("/logs", "🕵️ Logs de Rastreio");
+      criarCard("/admin-criar-usuario", "👤 Criar Novo Usuário");
+
+      linksAdmin.innerHTML = `
+        <a href="/cadastro">📦 Cadastro</a>
+        <a href="/quebras">❌ Quebras</a>
+        <a href="/saidas">💰 Saídas</a>
+        <a href="/logs">🕵️ Logs</a>
+        <a href="/admin-criar-usuario">👤 Novo Usuário</a>
+      `;
+    }
+
+    function logout() {
+      localStorage.removeItem('usuarioLogado');
+      window.location.href = '/login';
+    }
+  </script>
+</body>
+</html>

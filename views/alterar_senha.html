@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Alterar Senha</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main style="max-width: 400px; margin: auto; padding-top: 60px;">
+    <h2 style="text-align: center;">Alterar Senha</h2>
+    <input type="password" id="senha_atual" placeholder="Senha Atual" required>
+    <input type="password" id="nova_senha" placeholder="Nova Senha" required>
+    <input type="password" id="confirmar_senha" placeholder="Confirmar Nova Senha" required>
+    <button onclick="alterarSenha()">Salvar Nova Senha</button>
+    <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+  </main>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (!usuario) {
+      window.location.href = '/login';
+    }
+
+    async function alterarSenha() {
+      const senhaAtual = document.getElementById('senha_atual').value;
+      const novaSenha = document.getElementById('nova_senha').value;
+      const confirmar = document.getElementById('confirmar_senha').value;
+      const msg = document.getElementById('mensagem');
+
+      if (!senhaAtual || !novaSenha || !confirmar) {
+        msg.innerText = 'Preencha todos os campos.';
+        msg.style.color = 'red';
+        return;
+      }
+
+      if (novaSenha !== confirmar) {
+        msg.innerText = 'Nova senha e confirmação não coincidem.';
+        msg.style.color = 'red';
+        return;
+      }
+
+      const res = await fetch(`/api/usuarios/${usuario.id}/senha`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senha_atual: senhaAtual, nova_senha: novaSenha })
+      });
+
+      const data = await res.json();
+      msg.innerText = res.ok ? 'Senha alterada com sucesso!' : (data.erro || 'Erro ao alterar senha');
+      msg.style.color = res.ok ? 'green' : 'red';
+    }
+  </script>
+</body>
+</html>

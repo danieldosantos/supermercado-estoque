@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Estoque</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main style="max-width: 400px; margin: auto; padding-top: 100px;">
+    <h1 style="text-align: center;">Login</h1>
+    <form id="loginForm" style="display: flex; flex-direction: column; gap: 15px;">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="senha" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="erro" style="color: red; text-align: center;"></p>
+  </main>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email.value;
+      const senha = form.senha.value;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('usuarioLogado', JSON.stringify(data));
+          window.location.href = '/';
+        } else {
+          document.getElementById('erro').innerText = data.erro || 'Falha no login';
+        }
+      } catch (error) {
+        document.getElementById('erro').innerText = 'Erro de conexão com o servidor';
+      }
+    });
+  </script>
+</body>
+</html>
