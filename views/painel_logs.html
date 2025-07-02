@@ -10,14 +10,13 @@
 <header>
   <div><strong>Estoque do Supermercado</strong></div>
   <nav>
-    <a href="/cadastro">Cadastro</a>
-    <a href="/quebras">Quebras</a>
-    <a href="/saidas">Saídas</a>
-    <a href="/conferencia-estoque">Estoque</a>
-    <a href="/conferencia-quebras">Conferência de Quebras</a>
-    <a href="/conferencia-saidas">Conferência de Saídas</a>
-    <a href="/logs">Logs</a>
+    <a href="/conferencia-estoque">📋 Conferência de Estoque</a>
+    <a href="/conferencia-quebras">📉 Conferência de Quebras</a>
+    <a href="/conferencia-saidas">📈 Conferência de Saídas</a>
+    <a href="/alterar-senha">🔐 Alterar Senha</a>
+    <span id="links-admin"></span>
   </nav>
+  <button onclick="logout()" style="margin-left: auto;">Sair</button>
 </header>
 
 <main class="logs-container">
@@ -57,6 +56,21 @@
   }
 
   carregarLogs();
+</script>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
+  const linksAdmin = document.getElementById('links-admin');
+  if (user.role === 'admin') {
+    linksAdmin.innerHTML = `
+      <a href="/cadastro">📦 Cadastro</a>
+      <a href="/quebras">❌ Quebras</a>
+      <a href="/saidas">💰 Saídas</a>
+      <a href="/logs">🕵️ Logs</a>
+      <a href="/painel-admin">📊 Painel</a>
+      <a href="/admin-criar-usuario">👤 Novo Usuário</a>
+    `;
+  }
 </script>
 
 </body>
