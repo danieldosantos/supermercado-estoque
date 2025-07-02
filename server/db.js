@@ -1,9 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const loadEnv = require('../loadEnv');
+
+// Carrega variáveis de ambiente do arquivo .env se existir
+loadEnv();
 
 // Caminho do arquivo do banco
-const dbPath = path.resolve(__dirname, 'estoque.sqlite');
+const defaultDb = path.resolve(__dirname, 'estoque.sqlite');
+const dbPath = process.env.DB_PATH ? path.resolve(process.env.DB_PATH) : defaultDb;
 
 // Conecta ao banco (cria se não existir)
 const db = new sqlite3.Database(dbPath, (err) => {

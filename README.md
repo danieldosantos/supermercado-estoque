@@ -11,6 +11,18 @@ Sistema simples de controle de estoque com:
 - Node.js com Express
 - SQLite (banco de dados leve e embutido)
 
+## Configuração
+
+Crie um arquivo `.env` na raiz do projeto baseado em `.env.example` com as seguintes variáveis:
+
+```
+PORT=3000
+DB_PATH=./server/estoque.sqlite
+```
+
+- `PORT` define a porta em que o servidor Express irá escutar.
+- `DB_PATH` indica o caminho do arquivo SQLite utilizado pela aplicação.
+
 ## Instalação
 
 1. Instale as dependências do projeto:
@@ -42,14 +54,14 @@ node server/criarAdmin.js
 
 ## Endpoints da API
 
-Autenticação e usuários:
+### Autenticação e usuários:
 
 - `POST /api/login` – realiza login (body: `email`, `senha`).
 - `POST /api/logout` – encerra a sessão.
 - `POST /api/usuarios` – cria usuário (admin).
 - `PUT /api/usuarios/:id/senha` – altera senha.
 
-Produtos:
+### Produtos:
 
 - `POST /api/produtos` – cadastra produto (admin).
 - `GET /api/produtos` – lista produtos (`departamento` e `busca` como query).
