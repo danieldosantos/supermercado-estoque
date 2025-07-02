@@ -23,11 +23,22 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Conferência de Quebras</h1>
 <form id="filtros">
-  <label>Departamento:</label>
-  <select name="departamento"><option value="">Todos</option></select>
-  <label>Ano:</label><input type="number" name="ano" min="2000" max="2100">
-  <label>Mês:</label><input type="number" name="mes" min="1" max="12">
-  <label>Dia:</label><input type="number" name="dia" min="1" max="31">
+  <div class="form-group">
+    <label>Departamento:</label>
+    <select name="departamento"><option value="">Todos</option></select>
+  </div>
+  <div class="form-group">
+    <label>Ano:</label>
+    <input type="number" name="ano" min="2000" max="2100">
+  </div>
+  <div class="form-group">
+    <label>Mês:</label>
+    <input type="number" name="mes" min="1" max="12">
+  </div>
+  <div class="form-group">
+    <label>Dia:</label>
+    <input type="number" name="dia" min="1" max="31">
+  </div>
   <button type="submit">Filtrar</button>
 </form>
 <table><thead><tr>

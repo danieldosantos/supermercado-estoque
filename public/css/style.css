@@ -165,3 +165,9 @@ h1 {
   margin-right: 5px;
   border-radius: 2px;
 }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}

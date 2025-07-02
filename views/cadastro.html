@@ -24,15 +24,20 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Cadastro de Produto</h1>
     <form id="formCadastro">
-      <input type="text" name="nome" placeholder="Nome do Produto" required><br>
-      <input type="text" name="codigo_barras" placeholder="Código de Barras" required><br>
+      <div class="form-group">
+        <input type="text" name="nome" placeholder="Nome do Produto" required>
+      </div>
+      <div class="form-group">
+        <input type="text" name="codigo_barras" placeholder="Código de Barras" required>
+      </div>
 
-      <label for="departamento">Departamento:</label><br>
-      <select name="departamento" id="departamento" required>
-        <option value="">Selecione um departamento</option>
-        <option>Hortifruti</option>
-        <option>Açougue</option>
-        <option>Padaria</option>
+      <div class="form-group">
+        <label for="departamento">Departamento:</label>
+        <select name="departamento" id="departamento" required>
+          <option value="">Selecione um departamento</option>
+          <option>Hortifruti</option>
+          <option>Açougue</option>
+          <option>Padaria</option>
         <option>Frios e Laticínios</option>
         <option>Bebidas</option>
         <option>Mercearia</option>
@@ -45,13 +50,20 @@
         <option>Congelados</option>
         <option>Produtos Naturais</option>
         <option>Bebê</option>
-      </select><br>
+        </select>
+      </div>
 
-      <input type="number" name="quantidade" placeholder="Quantidade" min="0" required><br>
-      <input type="text" name="preco" id="preco" placeholder="Preço Unitário (R$)" required><br>
-      
-      <label for="validade">Data de Validade:</label><br>
-      <input type="date" id="validade" name="validade"><br>
+      <div class="form-group">
+        <input type="number" name="quantidade" placeholder="Quantidade" min="0" required>
+      </div>
+      <div class="form-group">
+        <input type="text" name="preco" id="preco" placeholder="Preço Unitário (R$)" required>
+      </div>
+
+      <div class="form-group">
+        <label for="validade">Data de Validade:</label>
+        <input type="date" id="validade" name="validade">
+      </div>
 
       <button type="submit">Cadastrar</button>
       <p id="msg-erro" style="color:red"></p>
