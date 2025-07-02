@@ -57,7 +57,15 @@ select {
   flex-direction: column;
   gap: 10px;
   max-width: 400px;
-  margin: 0 auto;
+  margin: auto;
+  padding-top: 60px;
+}
+
+/* Agrupamento de inputs e labels */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
 
 .back-link {
@@ -153,7 +161,7 @@ h1 {
   background-color: #f9f9f9;
 }
 
-/* Legend for admin chart */
+/* Legenda do gráfico no painel admin */
 #legenda {
   text-align: center;
   margin-top: 10px;
@@ -172,14 +180,4 @@ h1 {
   display: inline-block;
   margin-right: 5px;
   border-radius: 2px;
-}
-
-/* Generic form layout */
-.form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 400px;
-  margin: auto;
-  padding-top: 60px;
 }

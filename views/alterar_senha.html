@@ -21,9 +21,15 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h2 style="text-align: center;">Alterar Senha</h2>
     <form id="form-alterar-senha" class="form-container">
-      <input type="password" id="senha_atual" placeholder="Senha Atual" required>
-      <input type="password" id="nova_senha" placeholder="Nova Senha" required>
-      <input type="password" id="confirmar_senha" placeholder="Confirmar Nova Senha" required>
+      <div class="form-group">
+        <input type="password" id="senha_atual" placeholder="Senha Atual" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="nova_senha" placeholder="Nova Senha" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="confirmar_senha" placeholder="Confirmar Nova Senha" required>
+      </div>
       <button type="submit">Salvar Nova Senha</button>
     </form>
     <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>

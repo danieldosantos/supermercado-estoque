@@ -9,13 +9,18 @@
   <main style="max-width: 400px; margin: auto; padding-top: 100px;">
     <a href="/" class="back-link">&larr; Início</a>
     <h1 style="text-align: center;">Login</h1>
-    <form id="loginForm" class="form-container">
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="senha" placeholder="Senha" required>
+    <form id="loginForm" style="display: flex; flex-direction: column;">
+      <div class="form-group">
+        <input type="email" name="email" placeholder="Email" required>
+      </div>
+      <div class="form-group">
+        <input type="password" name="senha" placeholder="Senha" required>
+      </div>
       <button type="submit">Entrar</button>
     </form>
     <p id="erro" style="color: red; text-align: center;"></p>
   </main>
+
   <script src="/js/main.js"></script>
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {

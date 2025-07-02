@@ -22,76 +22,81 @@
   <main>
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Registro de Quebras</h1>
-<form id="formQuebra" class="form-container">
-  <label for="produto">Produto:</label>
-  <select id="produto" required><option value="">Selecione um produto</option></select>
-  <input type="number" name="quantidade" placeholder="Quantidade Quebrada" required>
-  <input type="text" name="valor_quebra" id="valor_quebra" placeholder="Valor Total da Quebra (R$)" required>
-  <button type="submit">Registrar Quebra</button>
-</form>
-<script src="/js/main.js"></script>
-<script>
-// JavaScript para carregar produtos e enviar quebra
-</script>
-  
-<script>
-  async function carregarProdutos() {
-    const res = await fetch('/api/produtos');
-    const produtos = await res.json();
-    const select = document.getElementById('produto');
-    produtos.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.nome;
-      select.appendChild(opt);
-    });
-  }
 
-  // Máscara de moeda para valor da quebra
-  document.getElementById('valor_quebra').addEventListener('input', e => {
-    let v = e.target.value.replace(/\D/g, '');
-    v = (parseFloat(v) / 100).toFixed(2);
-    v = v.replace('.', ',');
-    e.target.value = 'R$ ' + v;
-  });
+    <form id="formQuebra">
+      <div class="form-group">
+        <label for="produto">Produto:</label>
+        <select id="produto" required>
+          <option value="">Selecione um produto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <input type="number" name="quantidade" placeholder="Quantidade Quebrada" required>
+      </div>
+      <div class="form-group">
+        <input type="text" name="valor_quebra" id="valor_quebra" placeholder="Valor Total da Quebra (R$)" required>
+      </div>
+      <button type="submit">Registrar Quebra</button>
+    </form>
 
-  document.getElementById('formQuebra').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const produto_id = document.getElementById('produto').value;
-    const dados = Object.fromEntries(new FormData(e.target));
-    dados.produto_id = produto_id;
-    dados.valor_quebra = parseFloat(dados.valor_quebra.replace(/[^0-9,]/g, '').replace(',', '.'));
+    <script src="/js/main.js"></script>
+    <script>
+      async function carregarProdutos() {
+        const res = await fetch('/api/produtos');
+        const produtos = await res.json();
+        const select = document.getElementById('produto');
+        produtos.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.nome;
+          select.appendChild(opt);
+        });
+      }
 
-    const res = await fetch('/api/quebras', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(dados)
-    });
+      document.getElementById('valor_quebra').addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '');
+        v = (parseFloat(v) / 100).toFixed(2);
+        v = v.replace('.', ',');
+        e.target.value = 'R$ ' + v;
+      });
 
-    const r = await res.json();
-    alert('Quebra registrada com ID: ' + r.id);
-    e.target.reset();
-  });
+      document.getElementById('formQuebra').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const produto_id = document.getElementById('produto').value;
+        const dados = Object.fromEntries(new FormData(e.target));
+        dados.produto_id = produto_id;
+        dados.valor_quebra = parseFloat(dados.valor_quebra.replace(/[^0-9,]/g, '').replace(',', '.'));
 
-  carregarProdutos();
-</script>
+        const res = await fetch('/api/quebras', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dados)
+        });
 
-<script>
-  const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
-  const linksAdmin = document.getElementById('links-admin');
-  if (user.role === 'admin') {
-    linksAdmin.innerHTML = `
-      <a href="/cadastro">📦 Cadastro</a>
-      <a href="/quebras">❌ Quebras</a>
-      <a href="/saidas">💰 Saídas</a>
-      <a href="/logs">🕵️ Logs</a>
-      <a href="/painel-admin">📊 Painel</a>
-      <a href="/admin-criar-usuario">👤 Novo Usuário</a>
-    `;
-  }
-</script>
+        const r = await res.json();
+        alert('Quebra registrada com ID: ' + r.id);
+        e.target.reset();
+      });
 
-</main>
+      carregarProdutos();
+    </script>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
+      const linksAdmin = document.getElementById('links-admin');
+      if (user.role === 'admin') {
+        linksAdmin.innerHTML = `
+          <a href="/cadastro">📦 Cadastro</a>
+          <a href="/quebras">❌ Quebras</a>
+          <a href="/saidas">💰 Saídas</a>
+          <a href="/logs">🕵️ Logs</a>
+          <a href="/painel-admin">📊 Painel</a>
+          <a href="/admin-criar-usuario">👤 Novo Usuário</a>
+        `;
+      }
+    </script>
+
+  </main>
 
 </body>
 </html>

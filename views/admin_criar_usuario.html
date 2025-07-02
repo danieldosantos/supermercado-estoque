@@ -20,17 +20,25 @@
   <main style="max-width: 400px; margin: auto; padding-top: 60px;">
     <a href="/" class="back-link">&larr; Início</a>
     <h2>Criar Novo Usuário</h2>
-    <form id="form-criar-usuario" class="form-container">
-      <input type="text" name="nome" placeholder="Nome" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="senha" placeholder="Senha" required>
-      <select name="role" required>
-        <option value="operador">Operador</option>
-        <option value="admin">Administrador</option>
-      </select>
+    <form id="form-criar-usuario" style="display: flex; flex-direction: column;">
+      <div class="form-group">
+        <input type="text" name="nome" placeholder="Nome" required>
+      </div>
+      <div class="form-group">
+        <input type="email" name="email" placeholder="Email" required>
+      </div>
+      <div class="form-group">
+        <input type="password" name="senha" placeholder="Senha" required>
+      </div>
+      <div class="form-group">
+        <select name="role" required>
+          <option value="operador">Operador</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
       <button type="submit">Criar</button>
     </form>
-  <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+    <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
   <script src="/js/main.js"></script>
@@ -50,22 +58,24 @@
         role: form.role.value
       };
 
+      const msg = document.getElementById('mensagem');
+
       if (!dados.nome || !dados.email || !dados.senha) {
-        const msg = document.getElementById('mensagem');
         msg.innerText = 'Preencha todos os campos.';
         msg.style.color = 'red';
         return;
       }
+
       const res = await fetch('/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
       });
+
       const resp = await res.json();
-      const msg = document.getElementById('mensagem');
       msg.innerText = res.ok ? 'Usuário criado com sucesso!' : `Erro: ${resp.erro}`;
-    msg.style.color = res.ok ? 'green' : 'red';
-  });
+      msg.style.color = res.ok ? 'green' : 'red';
+    });
   </script>
   <script>
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
