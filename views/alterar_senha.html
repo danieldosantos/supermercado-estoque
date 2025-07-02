@@ -17,13 +17,15 @@
     </nav>
     <button onclick="logout()" style="margin-left: auto;">Sair</button>
   </header>
-  <main style="max-width: 400px; margin: auto; padding-top: 60px;">
+  <main>
     <a href="/" class="back-link">&larr; Início</a>
     <h2 style="text-align: center;">Alterar Senha</h2>
-    <input type="password" id="senha_atual" placeholder="Senha Atual" required>
-    <input type="password" id="nova_senha" placeholder="Nova Senha" required>
-    <input type="password" id="confirmar_senha" placeholder="Confirmar Nova Senha" required>
-    <button onclick="alterarSenha()">Salvar Nova Senha</button>
+    <form id="form-alterar-senha" class="form-container">
+      <input type="password" id="senha_atual" placeholder="Senha Atual" required>
+      <input type="password" id="nova_senha" placeholder="Nova Senha" required>
+      <input type="password" id="confirmar_senha" placeholder="Confirmar Nova Senha" required>
+      <button type="submit">Salvar Nova Senha</button>
+    </form>
     <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
@@ -62,6 +64,11 @@
       msg.innerText = res.ok ? 'Senha alterada com sucesso!' : (data.erro || 'Erro ao alterar senha');
       msg.style.color = res.ok ? 'green' : 'red';
     }
+
+    document.getElementById('form-alterar-senha').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await alterarSenha();
+    });
   </script>
   <script>
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
