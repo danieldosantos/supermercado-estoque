@@ -43,7 +43,7 @@
       const data = produtos.map(p => p.quantidade);
       const bgColors = produtos.map(p => cores[p.departamento] || 'rgba(75,192,192,0.6)');
 
-      // Grafico detalhado de estoque por produto com cores por departamento
+      // Gráfico detalhado de estoque por produto com cores por departamento
       const ctx = document.getElementById('graficoEstoque');
       new Chart(ctx, {
         type: 'bar',
@@ -75,6 +75,7 @@
         `<span class="legenda-item"><span class="legenda-cor" style="background-color:${cores[dep]}"></span>${dep}</span>`
       ).join(' ');
     }
+
     carregarGrafico();
   </script>
   <script>
