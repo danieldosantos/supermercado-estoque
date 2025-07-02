@@ -23,21 +23,25 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Conferência de Estoque</h1>
 
-    <form id="filtros">
-      <label>Departamento:</label>
-      <select name="departamento" id="departamento">
-        <option value="">Todos</option>
-        <option value="Padaria">Padaria</option>
-        <option value="Açougue">Açougue</option>
-        <option value="Hortifruti">Hortifruti</option>
-        <option value="Bebidas">Bebidas</option>
-        <option value="Limpeza">Limpeza</option>
-        <option value="Higiene">Higiene</option>
-        <option value="Congelados">Congelados</option>
-        <option value="Laticínios">Laticínios</option>
-        <option value="Mercearia">Mercearia</option>
-      </select>
-      <button type="submit">Filtrar</button>
+    <form id="filtros" class="form-container">
+      <div class="form-group">
+        <label>Departamento:</label>
+        <select name="departamento" id="departamento">
+          <option value="">Todos</option>
+          <option value="Padaria">Padaria</option>
+          <option value="Açougue">Açougue</option>
+          <option value="Hortifruti">Hortifruti</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Limpeza">Limpeza</option>
+          <option value="Higiene">Higiene</option>
+          <option value="Congelados">Congelados</option>
+          <option value="Laticínios">Laticínios</option>
+          <option value="Mercearia">Mercearia</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button type="submit">Filtrar</button>
+      </div>
     </form>
 
     <table>
@@ -58,15 +62,27 @@
 
     <div id="modalEdicao" style="display:none; background:#fff; padding:20px; border:1px solid #ccc; margin-top:20px;">
       <h3>Editar Produto</h3>
-      <form id="formEditar">
+      <form id="formEditar" class="form-container">
         <input type="hidden" id="edit-id">
-        <input type="text" id="edit-nome" placeholder="Nome"><br>
-        <input type="text" id="edit-departamento" placeholder="Departamento"><br>
-        <input type="number" id="edit-quantidade" placeholder="Quantidade"><br>
-        <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)"><br>
-        <input type="date" id="edit-validade"><br>
-        <button type="submit">Salvar</button>
-        <button type="button" onclick="fecharModal()">Cancelar</button>
+        <div class="form-group">
+          <input type="text" id="edit-nome" placeholder="Nome">
+        </div>
+        <div class="form-group">
+          <input type="text" id="edit-departamento" placeholder="Departamento">
+        </div>
+        <div class="form-group">
+          <input type="number" id="edit-quantidade" placeholder="Quantidade">
+        </div>
+        <div class="form-group">
+          <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)">
+        </div>
+        <div class="form-group">
+          <input type="date" id="edit-validade">
+        </div>
+        <div class="form-group">
+          <button type="submit">Salvar</button>
+          <button type="button" onclick="fecharModal()">Cancelar</button>
+        </div>
       </form>
     </div>
 
