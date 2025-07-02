@@ -23,7 +23,7 @@
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Conferência de Estoque</h1>
 
-    <form id="filtros">
+    <form id="filtros" class="form-container">
       <label>Departamento:</label>
       <select name="departamento" id="departamento">
         <option value="">Todos</option>
@@ -58,13 +58,13 @@
 
     <div id="modalEdicao" style="display:none; background:#fff; padding:20px; border:1px solid #ccc; margin-top:20px;">
       <h3>Editar Produto</h3>
-      <form id="formEditar">
+      <form id="formEditar" class="form-container">
         <input type="hidden" id="edit-id">
-        <input type="text" id="edit-nome" placeholder="Nome"><br>
-        <input type="text" id="edit-departamento" placeholder="Departamento"><br>
-        <input type="number" id="edit-quantidade" placeholder="Quantidade"><br>
-        <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)"><br>
-        <input type="date" id="edit-validade"><br>
+        <input type="text" id="edit-nome" placeholder="Nome">
+        <input type="text" id="edit-departamento" placeholder="Departamento">
+        <input type="number" id="edit-quantidade" placeholder="Quantidade">
+        <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)">
+        <input type="date" id="edit-validade">
         <button type="submit">Salvar</button>
         <button type="button" onclick="fecharModal()">Cancelar</button>
       </form>
