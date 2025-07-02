@@ -240,6 +240,139 @@ router.get('/api/notificacoes/baixo-estoque', authMiddleware, (req, res) => {
   });
 });
 
+// Quebras
+router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
+  const { produto_id, quantidade, valor_quebra } = req.body;
+  const qtd = parseInt(quantidade, 10) || 0;
+  const valorNum = parseFloat(String(valor_quebra).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+
+  const sql = `INSERT INTO quebras (produto_id, quantidade, valor_quebra) VALUES (?, ?, ?)`;
+  db.run(sql, [produto_id, qtd, valorNum], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+      ['Criação', 'Quebra', `Quebra ID ${this.lastID} criada`, 'Admin']);
+    res.status(201).json({ id: this.lastID });
+  });
+});
+
+router.get('/api/quebras', authMiddleware, (req, res) => {
+  const { departamento, ano, mes, dia } = req.query;
+  let sql = `SELECT q.id, p.nome AS produto, p.departamento, q.quantidade, q.valor_quebra, q.data_quebra
+             FROM quebras q JOIN produtos p ON q.produto_id = p.id WHERE 1=1`;
+  const params = [];
+  if (departamento) {
+    sql += ' AND p.departamento = ?';
+    params.push(departamento);
+  }
+  if (ano) {
+    sql += " AND strftime('%Y', q.data_quebra) = ?";
+    params.push(String(ano).padStart(4, '0'));
+  }
+  if (mes) {
+    sql += " AND strftime('%m', q.data_quebra) = ?";
+    params.push(String(mes).padStart(2, '0'));
+  }
+  if (dia) {
+    sql += " AND strftime('%d', q.data_quebra) = ?";
+    params.push(String(dia).padStart(2, '0'));
+  }
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows);
+  });
+});
+
+router.put('/api/quebras/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { produto_id, quantidade, valor_quebra, data_quebra } = req.body;
+  const qtd = parseInt(quantidade, 10) || 0;
+  const valorNum = parseFloat(String(valor_quebra).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const sql = `UPDATE quebras SET produto_id = ?, quantidade = ?, valor_quebra = ?, data_quebra = ? WHERE id = ?`;
+  db.run(sql, [produto_id, qtd, valorNum, data_quebra, id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+      ['Edição', 'Quebra', `Quebra ID ${id} editada`, 'Admin']);
+    res.json({ atualizado: this.changes > 0 });
+  });
+});
+
+router.delete('/api/quebras/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM quebras WHERE id = ?', [id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (this.changes === 0) return res.status(404).json({ erro: 'Registro não encontrado' });
+    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+      ['Exclusão', 'Quebra', `Quebra ID ${id} excluída`, 'Admin']);
+    res.json({ deletado: true });
+  });
+});
+
+// Saídas
+router.post('/api/saidas', authMiddleware, adminMiddleware, (req, res) => {
+  const { produto_id, quantidade, valor_saida } = req.body;
+  const qtd = parseInt(quantidade, 10) || 0;
+  const valorNum = parseFloat(String(valor_saida).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const sql = `INSERT INTO saidas (produto_id, quantidade, valor_saida) VALUES (?, ?, ?)`;
+  db.run(sql, [produto_id, qtd, valorNum], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+      ['Criação', 'Saída', `Saída ID ${this.lastID} criada`, 'Admin']);
+    res.status(201).json({ id: this.lastID });
+  });
+});
+
+router.get('/api/saidas', authMiddleware, (req, res) => {
+  const { departamento, ano, mes, dia } = req.query;
+  let sql = `SELECT s.id, p.nome AS produto, p.departamento, s.quantidade, s.valor_saida, s.data_saida
+             FROM saidas s JOIN produtos p ON s.produto_id = p.id WHERE 1=1`;
+  const params = [];
+  if (departamento) {
+    sql += ' AND p.departamento = ?';
+    params.push(departamento);
+  }
+  if (ano) {
+    sql += " AND strftime('%Y', s.data_saida) = ?";
+    params.push(String(ano).padStart(4, '0'));
+  }
+  if (mes) {
+    sql += " AND strftime('%m', s.data_saida) = ?";
+    params.push(String(mes).padStart(2, '0'));
+  }
+  if (dia) {
+    sql += " AND strftime('%d', s.data_saida) = ?";
+    params.push(String(dia).padStart(2, '0'));
+  }
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows);
+  });
+});
+
+router.put('/api/saidas/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { produto_id, quantidade, valor_saida, data_saida } = req.body;
+  const qtd = parseInt(quantidade, 10) || 0;
+  const valorNum = parseFloat(String(valor_saida).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const sql = `UPDATE saidas SET produto_id = ?, quantidade = ?, valor_saida = ?, data_saida = ? WHERE id = ?`;
+  db.run(sql, [produto_id, qtd, valorNum, data_saida, id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+      ['Edição', 'Saída', `Saída ID ${id} editada`, 'Admin']);
+    res.json({ atualizado: this.changes > 0 });
+  });
+});
+
+router.delete('/api/saidas/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM saidas WHERE id = ?', [id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (this.changes === 0) return res.status(404).json({ erro: 'Registro não encontrado' });
+    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+      ['Exclusão', 'Saída', `Saída ID ${id} excluída`, 'Admin']);
+    res.json({ deletado: true });
+  });
+});
+
 // Logs
 router.get('/api/logs', authMiddleware, adminMiddleware, (_, res) => {
   db.all(`SELECT * FROM logs ORDER BY data_hora DESC LIMIT 100`, [], (err, rows) => {
