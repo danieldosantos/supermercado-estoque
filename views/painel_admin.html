@@ -71,7 +71,7 @@
 
       const legenda = document.getElementById('legenda');
       legenda.innerHTML = Object.keys(cores).map(dep =>
-        `<span class="legenda-item"><span class="legenda-cor" style="background:${cores[dep]}"></span>${dep}</span>`
+        `<span class="legenda-item"><span class="legenda-cor" style="background-color:${cores[dep]}"></span>${dep}</span>`
       ).join(' ');
     }
     carregarGrafico();
