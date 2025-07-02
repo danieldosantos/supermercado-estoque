@@ -52,6 +52,14 @@ select {
   border-radius: 4px;
 }
 
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: 15px;

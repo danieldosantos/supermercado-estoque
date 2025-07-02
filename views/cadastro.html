@@ -23,11 +23,11 @@
   <main>
     <a href="/" class="back-link">&larr; Início</a>
     <h1>Cadastro de Produto</h1>
-    <form id="formCadastro">
-      <input type="text" name="nome" placeholder="Nome do Produto" required><br>
-      <input type="text" name="codigo_barras" placeholder="Código de Barras" required><br>
+    <form id="formCadastro" class="form-container">
+      <input type="text" name="nome" placeholder="Nome do Produto" required>
+      <input type="text" name="codigo_barras" placeholder="Código de Barras" required>
 
-      <label for="departamento">Departamento:</label><br>
+      <label for="departamento">Departamento:</label>
       <select name="departamento" id="departamento" required>
         <option value="">Selecione um departamento</option>
         <option>Hortifruti</option>
@@ -45,13 +45,13 @@
         <option>Congelados</option>
         <option>Produtos Naturais</option>
         <option>Bebê</option>
-      </select><br>
+      </select>
 
-      <input type="number" name="quantidade" placeholder="Quantidade" min="0" required><br>
-      <input type="text" name="preco" id="preco" placeholder="Preço Unitário (R$)" required><br>
-      
-      <label for="validade">Data de Validade:</label><br>
-      <input type="date" id="validade" name="validade"><br>
+      <input type="number" name="quantidade" placeholder="Quantidade" min="0" required>
+      <input type="text" name="preco" id="preco" placeholder="Preço Unitário (R$)" required>
+
+      <label for="validade">Data de Validade:</label>
+      <input type="date" id="validade" name="validade">
 
       <button type="submit">Cadastrar</button>
       <p id="msg-erro" style="color:red"></p>
