@@ -3,6 +3,41 @@ const router = express.Router();
 const db = require('./db');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+
+// Sessões em memória
+const sessions = {};
+
+function createSession(user) {
+  const token = crypto.randomBytes(16).toString('hex');
+  sessions[token] = { user, exp: Date.now() + 60 * 60 * 1000 };
+  return token;
+}
+
+function getSession(token) {
+  const sess = sessions[token];
+  if (!sess) return null;
+  if (sess.exp < Date.now()) {
+    delete sessions[token];
+    return null;
+  }
+  return sess.user;
+}
+
+function authMiddleware(req, res, next) {
+  const token = req.headers['x-session-token'];
+  const user = getSession(token);
+  if (!user) return res.status(401).json({ erro: 'Sessão inválida' });
+  req.user = user;
+  next();
+}
+
+function adminMiddleware(req, res, next) {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ erro: 'Acesso negado' });
+  }
+  next();
+}
 
 const htmlPath = (page) => path.join(__dirname, '..', 'views', page);
 const publicPath = (page) => path.join(__dirname, '..', 'public', page);
@@ -18,6 +53,7 @@ router.get('/alterar-senha', (_, res) => res.sendFile(htmlPath('alterar_senha.ht
 router.get('/admin-criar-usuario', (_, res) => res.sendFile(htmlPath('admin_criar_usuario.html')));
 router.get('/login', (_, res) => res.sendFile(htmlPath('login.html')));
 router.get('/logs', (_, res) => res.sendFile(htmlPath('painel_logs.html')));
+router.get('/painel-admin', (_, res) => res.sendFile(htmlPath('painel_admin.html')));
 router.get('/painel', (_, res) => res.redirect('/'));
 router.get('/', (_, res) => res.sendFile(publicPath('index.html')));
 
@@ -29,25 +65,49 @@ router.post('/api/login', (req, res) => {
     if (!user) return res.status(401).json({ erro: 'Usuário não encontrado' });
     const senhaCorreta = bcrypt.compareSync(senha, user.senha_hash);
     if (!senhaCorreta) return res.status(401).json({ erro: 'Senha inválida' });
-    res.json({ id: user.id, nome: user.nome, role: user.role });
+    const token = createSession({ id: user.id, nome: user.nome, role: user.role });
+    res.json({ id: user.id, nome: user.nome, role: user.role, token });
   });
+});
+
+router.post('/api/logout', (req, res) => {
+  const token = req.headers['x-session-token'];
+  if (token) delete sessions[token];
+  res.json({ sucesso: true });
 });
 
 // Criar novo usuário
-router.post('/api/usuarios', (req, res) => {
+router.post('/api/usuarios', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, email, senha, role } = req.body;
-  const senhaHash = bcrypt.hashSync(senha, 10);
-  const sql = `INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?, ?, ?, ?)`;
-  db.run(sql, [nome, email, senhaHash, role], function (err) {
-    if (err) return res.status(500).json({ erro: err.message });
-    res.status(201).json({ id: this.lastID });
-  });
+  function inserir() {
+    const senhaHash = bcrypt.hashSync(senha, 10);
+    const sql = `INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?, ?, ?, ?)`;
+    db.run(sql, [nome, email, senhaHash, role], function (err) {
+      if (err) return res.status(500).json({ erro: err.message });
+      res.status(201).json({ id: this.lastID });
+    });
+  }
+
+  if (role === 'admin') {
+    db.get('SELECT id FROM usuarios WHERE role = ? LIMIT 1', ['admin'], (err, row) => {
+      if (err) return res.status(500).json({ erro: err.message });
+      if (row) return res.status(400).json({ erro: 'Já existe um usuário admin' });
+      inserir();
+    });
+  } else {
+    inserir();
+  }
 });
 
 // Alterar senha
-router.put('/api/usuarios/:id/senha', (req, res) => {
+router.put('/api/usuarios/:id/senha', authMiddleware, (req, res) => {
   const { id } = req.params;
   const { senha_atual, nova_senha } = req.body;
+
+  if (req.user.id !== Number(id) && req.user.role !== 'admin') {
+    return res.status(403).json({ erro: 'Acesso negado' });
+  }
+
   db.get('SELECT senha_hash FROM usuarios WHERE id = ?', [id], (err, row) => {
     if (err) return res.status(500).json({ erro: 'Erro ao buscar usuário' });
     if (!row || !bcrypt.compareSync(senha_atual, row.senha_hash)) {
@@ -62,7 +122,7 @@ router.put('/api/usuarios/:id/senha', (req, res) => {
 });
 
 // Produtos
-router.post('/api/produtos', (req, res) => {
+router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, codigo_barras, departamento, quantidade, validade, preco } = req.body;
   const sql = `INSERT INTO produtos (nome, codigo_barras, departamento, quantidade, validade, preco) VALUES (?, ?, ?, ?, ?, ?)`;
   db.run(sql, [nome, codigo_barras, departamento, quantidade, validade, preco], function (err) {
@@ -73,13 +133,17 @@ router.post('/api/produtos', (req, res) => {
   });
 });
 
-router.get('/api/produtos', (req, res) => {
-  const { departamento } = req.query;
+router.get('/api/produtos', authMiddleware, (req, res) => {
+  const { departamento, busca } = req.query;
   let sql = 'SELECT * FROM produtos WHERE 1=1';
   const params = [];
   if (departamento) {
     sql += ' AND departamento = ?';
     params.push(departamento);
+  }
+  if (busca) {
+    sql += ' AND (nome LIKE ? OR codigo_barras LIKE ?)';
+    params.push(`%${busca}%`, `%${busca}%`);
   }
   db.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ erro: err.message });
@@ -87,7 +151,7 @@ router.get('/api/produtos', (req, res) => {
   });
 });
 
-router.put('/api/produtos/:id', (req, res) => {
+router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, departamento, quantidade, preco, validade } = req.body;
   const { id } = req.params;
   const sql = `UPDATE produtos SET nome = ?, departamento = ?, quantidade = ?, preco = ?, validade = ? WHERE id = ?`;
@@ -99,7 +163,7 @@ router.put('/api/produtos/:id', (req, res) => {
   });
 });
 
-router.delete('/api/produtos/:id', (req, res) => {
+router.delete('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
   const { id } = req.params;
   const sql = 'DELETE FROM produtos WHERE id = ?';
   db.run(sql, [id], function (err) {
@@ -111,8 +175,29 @@ router.delete('/api/produtos/:id', (req, res) => {
   });
 });
 
+router.get('/api/produtos/export/csv', authMiddleware, adminMiddleware, (_, res) => {
+  db.all('SELECT * FROM produtos', [], (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    let csv = 'id,nome,codigo_barras,departamento,quantidade,validade,preco,data_entrada\n';
+    rows.forEach(r => {
+      csv += `${r.id},${r.nome},${r.codigo_barras},${r.departamento},${r.quantidade},${r.validade || ''},${r.preco},${r.data_entrada}\n`;
+    });
+    res.header('Content-Type', 'text/csv');
+    res.attachment('produtos.csv');
+    res.send(csv);
+  });
+});
+
+router.get('/api/notificacoes/baixo-estoque', authMiddleware, (req, res) => {
+  const limite = parseInt(req.query.limite) || 5;
+  db.all('SELECT nome, quantidade FROM produtos WHERE quantidade < ?', [limite], (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows);
+  });
+});
+
 // Logs
-router.get('/api/logs', (_, res) => {
+router.get('/api/logs', authMiddleware, adminMiddleware, (_, res) => {
   db.all(`SELECT * FROM logs ORDER BY data_hora DESC LIMIT 100`, [], (err, rows) => {
     if (err) return res.status(500).json({ erro: err.message });
     res.json(rows);

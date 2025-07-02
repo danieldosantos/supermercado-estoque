@@ -6,7 +6,19 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <main style="max-width: 400px; margin: auto; padding-top: 100px;">
+  <header>
+    <div><strong>Estoque do Supermercado</strong></div>
+    <nav>
+      <a href="/">Início</a>
+      <a href="/conferencia-estoque">Conferência de Estoque</a>
+      <a href="/conferencia-quebras">Conferência de Quebras</a>
+      <a href="/conferencia-saidas">Conferência de Saídas</a>
+      <a href="/alterar-senha">Alterar Senha</a>
+      <span id="links-admin"></span>
+    </nav>
+    <button onclick="logout()" style="margin-left: auto;">Sair</button>
+  </header>
+  <main class="container" style="max-width: 400px; padding-top: 100px;">
     <h1 style="text-align: center;">Login</h1>
     <form id="loginForm" style="display: flex; flex-direction: column; gap: 15px;">
       <input type="email" name="email" placeholder="Email" required>
@@ -15,7 +27,7 @@
     </form>
     <p id="erro" style="color: red; text-align: center;"></p>
   </main>
-
+  <script src="/js/main.js"></script>
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();

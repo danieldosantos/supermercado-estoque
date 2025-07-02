@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Administrativo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <div><strong>Painel Administrativo</strong></div>
+    <nav>
+      <a href="/">Início</a>
+      <a href="/conferencia-estoque">Conferência de Estoque</a>
+      <a href="/conferencia-quebras">Conferência de Quebras</a>
+      <a href="/conferencia-saidas">Conferência de Saídas</a>
+      <a href="/alterar-senha">Alterar Senha</a>
+      <span id="links-admin"></span>
+    </nav>
+    <button onclick="logout()" style="margin-left:auto">Sair</button>
+  </header>
+  <main class="container">
+    <h1>Estoque por Departamento</h1>
+    <canvas id="graficoEstoque"></canvas>
+  </main>
+
+  <script src="/js/main.js"></script>
+  <script>
+    async function carregarGrafico() {
+      const res = await fetch('/api/produtos');
+      const produtos = await res.json();
+      const totals = {};
+      produtos.forEach(p => {
+        totals[p.departamento] = (totals[p.departamento] || 0) + p.quantidade;
+      });
+      const ctx = document.getElementById('graficoEstoque');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(totals),
+          datasets: [{
+            label: 'Quantidade',
+            backgroundColor: 'rgba(75,192,192,0.6)',
+            data: Object.values(totals)
+          }]
+        }
+      });
+    }
+    carregarGrafico();
+  </script>
+</body>
+</html>

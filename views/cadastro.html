@@ -11,17 +11,17 @@
   <header>
     <div><strong>Estoque do Supermercado</strong></div>
     <nav>
-      <a href="/cadastro">Cadastro</a>
-      <a href="/quebras">Quebras</a>
-      <a href="/saidas">Saídas</a>
-      <a href="/conferencia-estoque">Estoque</a>
+      <a href="/">Início</a>
+      <a href="/conferencia-estoque">Conferência de Estoque</a>
       <a href="/conferencia-quebras">Conferência de Quebras</a>
       <a href="/conferencia-saidas">Conferência de Saídas</a>
-      <a href="/logs">Logs</a>
+      <a href="/alterar-senha">Alterar Senha</a>
+      <span id="links-admin"></span>
     </nav>
+    <button onclick="logout()" style="margin-left: auto;">Sair</button>
   </header>
 
-  <main>
+  <main class="container">
     <h1>Cadastro de Produto</h1>
     <form id="formCadastro">
       <input type="text" name="nome" placeholder="Nome do Produto" required><br>
@@ -56,6 +56,7 @@
       <button type="submit">Cadastrar</button>
     </form>
 
+    <script src="/js/main.js"></script>
     <script>
       document.getElementById('formCadastro').addEventListener('submit', async (e) => {
         e.preventDefault();

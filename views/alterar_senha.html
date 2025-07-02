@@ -6,7 +6,19 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <main style="max-width: 400px; margin: auto; padding-top: 60px;">
+  <header>
+    <div><strong>Estoque do Supermercado</strong></div>
+    <nav>
+      <a href="/">Início</a>
+      <a href="/conferencia-estoque">Conferência de Estoque</a>
+      <a href="/conferencia-quebras">Conferência de Quebras</a>
+      <a href="/conferencia-saidas">Conferência de Saídas</a>
+      <a href="/alterar-senha">Alterar Senha</a>
+      <span id="links-admin"></span>
+    </nav>
+    <button onclick="logout()" style="margin-left: auto;">Sair</button>
+  </header>
+  <main class="container" style="max-width: 400px; padding-top: 60px;">
     <h2 style="text-align: center;">Alterar Senha</h2>
     <input type="password" id="senha_atual" placeholder="Senha Atual" required>
     <input type="password" id="nova_senha" placeholder="Nova Senha" required>
@@ -15,6 +27,7 @@
     <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
   </main>
 
+  <script src="/js/main.js"></script>
   <script>
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
     if (!usuario) {
