@@ -14,7 +14,7 @@
   const originalFetch = window.fetch;
   window.fetch = function(input, init = {}) {
     init.headers = init.headers || {};
-    init.headers['X-Session-Token'] = token;
+    init.headers['Authorization'] = 'Bearer ' + token;
     return originalFetch(input, init);
   };
 

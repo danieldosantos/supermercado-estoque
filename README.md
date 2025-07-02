@@ -10,3 +10,4 @@ Sistema simples de controle de estoque com:
 - HTML, CSS, JavaScript
 - Node.js com Express
 - SQLite (banco de dados leve e embutido)
+- Autenticação com tokens JWT simples
