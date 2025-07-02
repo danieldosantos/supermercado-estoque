@@ -7,8 +7,9 @@ const loadEnv = require('../loadEnv');
 loadEnv();
 
 // Caminho do arquivo do banco
-const defaultDb = path.resolve(__dirname, 'estoque.sqlite');
-const dbPath = process.env.DB_PATH ? path.resolve(process.env.DB_PATH) : defaultDb;
+const dbPath = process.env.DB_PATH
+  ? path.resolve(__dirname, process.env.DB_PATH)
+  : path.resolve(__dirname, 'estoque.sqlite');
 
 // Conecta ao banco (cria se não existir)
 const db = new sqlite3.Database(dbPath, (err) => {
