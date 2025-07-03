@@ -50,6 +50,24 @@ db.serialize(() => {
     FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
   )`);
 
+  // Atualiza tabela de produtos caso a coluna fornecedor_id esteja ausente
+  db.all('PRAGMA table_info(produtos)', (err, rows) => {
+    if (err) {
+      console.error('Erro ao verificar colunas da tabela produtos:', err.message);
+      return;
+    }
+    const hasForn = rows.some((r) => r.name === 'fornecedor_id');
+    if (!hasForn) {
+      db.run('ALTER TABLE produtos ADD COLUMN fornecedor_id INTEGER', (e) => {
+        if (e) {
+          console.error('Erro ao adicionar coluna fornecedor_id:', e.message);
+        } else {
+          console.log('Coluna fornecedor_id adicionada em produtos');
+        }
+      });
+    }
+  });
+
   // Quebras
   db.run(`CREATE TABLE IF NOT EXISTS quebras (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
