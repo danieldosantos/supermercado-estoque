@@ -163,9 +163,13 @@
         nome: document.getElementById('edit-nome').value,
         departamento: document.getElementById('edit-departamento').value,
         quantidade: document.getElementById('edit-quantidade').value,
-        preco: parseFloat(document.getElementById('edit-preco').value.replace(/[^0-9,]/g, '').replace(',', '.')),
+        preco: document.getElementById('edit-preco').value.replace(/[^0-9,]/g, ''),
         validade: document.getElementById('edit-validade').value
       };
+      if (!dados.preco) {
+        alert('Preço inválido.');
+        return;
+      }
       const res = await fetch(`/api/produtos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
