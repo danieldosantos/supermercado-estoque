@@ -44,7 +44,7 @@
       tbody.innerHTML = '';
       movs.forEach(m => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${m.acao}</td><td>${m.quantidade}</td><td>${m.data}</td><td>${m.usuario}</td>`;
+        tr.innerHTML = `<td>${m.acao}</td><td>${m.quantidade}</td><td>${formatarDataISO(m.data)}</td><td>${m.usuario}</td>`;
         tbody.appendChild(tr);
       });
     }

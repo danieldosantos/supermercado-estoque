@@ -78,7 +78,7 @@
           <td>${f.telefone || ''}</td>
           <td>${f.email || ''}</td>
           <td>${f.endereco || ''}</td>
-          <td>${f.data_inicio || ''}</td>
+          <td data-iso="${f.data_inicio || ''}">${f.data_inicio ? formatarDataISO(f.data_inicio) : ''}</td>
           <td>${f.produtos.join(', ')}</td>
           <td><button onclick="editar(${f.id})">Editar</button> <button onclick="deletar(${f.id})">Excluir</button></td>`;
         tbody.appendChild(tr);
@@ -117,7 +117,7 @@
       document.getElementById('edit-telefone').value = row.children[3].textContent;
       document.getElementById('edit-email').value = row.children[4].textContent;
       document.getElementById('edit-endereco').value = row.children[5].textContent;
-      document.getElementById('edit-inicio').value = row.children[6].textContent;
+      document.getElementById('edit-inicio').value = row.children[6].dataset.iso;
       document.getElementById('modalEditar').style.display = 'block';
     }
 

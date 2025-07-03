@@ -109,8 +109,8 @@
           <td>${p.departamento}</td>
           <td>${p.quantidade}</td>
           <td>${formatarPreco(p.preco)}</td>
-          <td>${p.validade || '-'}</td>
-          <td>${p.data_entrada || '-'}</td>
+          <td>${p.validade ? formatarDataISO(p.validade) : '-'}</td>
+          <td>${p.data_entrada ? formatarDataISO(p.data_entrada) : '-'}</td>
           <td>
             <button onclick="editarProduto(${p.id}, '${nome}', '${departamento}', ${p.quantidade}, ${p.preco}, '${validade}')">✏️ Editar</button>
             <button onclick="deletarProduto(${p.id})">🗑️ Excluir</button>

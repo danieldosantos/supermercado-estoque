@@ -46,7 +46,7 @@
     logs.forEach(log => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${log.data_hora}</td>
+        <td>${formatarDataHoraISO(log.data_hora)}</td>
         <td>${log.usuario}</td>
         <td>${log.acao}</td>
         <td>${log.detalhes}</td>

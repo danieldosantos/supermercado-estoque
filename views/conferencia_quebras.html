@@ -78,7 +78,7 @@
             <td>${q.departamento}</td>
             <td>${q.quantidade}</td>
           <td>${formatarPreco(q.valor_quebra)}</td>
-            <td>${q.data_quebra}</td>
+            <td>${formatarDataISO(q.data_quebra)}</td>
           `;
           tbody.appendChild(tr);
         });
