@@ -124,3 +124,15 @@ describe('Notificações de validade', () => {
     expect(res.body.some((p) => p.codigo_barras === '555')).toBe(true);
   });
 });
+
+describe('Resumo por departamento', () => {
+  test('deve calcular valores agregados', async () => {
+    const res = await agent.get('/api/departamentos/resumo');
+    expect(res.status).toBe(200);
+    const dep = res.body.find((d) => d.departamento === 'Teste');
+    expect(dep).toBeDefined();
+    expect(dep.valor_estoque).toBe(50);
+    expect(dep.valor_quebras).toBe(5);
+    expect(dep.valor_saidas).toBe(5);
+  });
+});

@@ -72,6 +72,7 @@ node server/criarAdmin.js
 - `GET /api/produtos/export/csv` – exporta lista em CSV.
 - `GET /api/notificacoes/baixo-estoque` – avisa itens com baixo estoque.
 - `GET /api/notificacoes/validade` – lista produtos que vencem em até 20 dias.
+- `GET /api/departamentos/resumo` – valores de estoque, quebras e saídas por departamento.
 - `GET /api/logs` – lista logs (admin).
 
 ### Estilo de formulários

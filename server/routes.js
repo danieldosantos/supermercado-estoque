@@ -377,4 +377,31 @@ router.get('/api/logs', authMiddleware, adminMiddleware, (_, res) => {
   });
 });
 
+// Resumo por departamento
+router.get('/api/departamentos/resumo', authMiddleware, adminMiddleware, (_req, res) => {
+  const sql = `
+    SELECT
+      p.departamento,
+      SUM(p.quantidade * p.preco) AS valor_estoque,
+      IFNULL((
+        SELECT SUM(q.quantidade * p2.preco)
+        FROM quebras q
+        JOIN produtos p2 ON q.produto_id = p2.id
+        WHERE p2.departamento = p.departamento
+      ), 0) AS valor_quebras,
+      IFNULL((
+        SELECT SUM(s.quantidade * p3.preco)
+        FROM saidas s
+        JOIN produtos p3 ON s.produto_id = p3.id
+        WHERE p3.departamento = p.departamento
+      ), 0) AS valor_saidas
+    FROM produtos p
+    GROUP BY p.departamento
+  `;
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows);
+  });
+});
+
 module.exports = router;
