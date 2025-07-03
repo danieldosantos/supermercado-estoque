@@ -108,7 +108,7 @@
           <td>${p.nome}</td>
           <td>${p.departamento}</td>
           <td>${p.quantidade}</td>
-          <td>R$ ${Number(p.preco).toFixed(2)}</td>
+          <td>${formatarPreco(p.preco)}</td>
           <td>${p.validade || '-'}</td>
           <td>${p.data_entrada || '-'}</td>
           <td>
@@ -142,7 +142,7 @@
       document.getElementById('edit-nome').value = decodeURIComponent(nome);
       document.getElementById('edit-departamento').value = decodeURIComponent(departamento);
       document.getElementById('edit-quantidade').value = quantidade;
-      document.getElementById('edit-preco').value = 'R$ ' + Number(preco).toFixed(2).replace('.', ',');
+      document.getElementById('edit-preco').value = formatarPreco(preco);
       document.getElementById('edit-validade').value = decodeURIComponent(validade);
       document.getElementById('modalEdicao').style.display = 'block';
     }
@@ -157,9 +157,8 @@
 
     document.getElementById('edit-preco').addEventListener('input', e => {
       let v = e.target.value.replace(/\D/g, '');
-      v = (parseFloat(v) / 100).toFixed(2);
-      v = v.replace('.', ',');
-      e.target.value = 'R$ ' + v;
+      v = parseFloat(v) / 100;
+      e.target.value = formatarPreco(v);
     });
 
     document.getElementById('formEditar').addEventListener('submit', async (e) => {

@@ -57,9 +57,8 @@
 
       document.getElementById('valor_quebra').addEventListener('input', e => {
         let v = e.target.value.replace(/\D/g, '');
-        v = (parseFloat(v) / 100).toFixed(2);
-        v = v.replace('.', ',');
-        e.target.value = 'R$ ' + v;
+        v = parseFloat(v) / 100;
+        e.target.value = formatarPreco(v);
       });
 
       document.getElementById('formQuebra').addEventListener('submit', async (e) => {
