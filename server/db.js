@@ -24,6 +24,17 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // Criação das tabelas
 db.serialize(() => {
+  // Fornecedores
+  db.run(`CREATE TABLE IF NOT EXISTS fornecedores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    cnpj TEXT,
+    telefone TEXT,
+    email TEXT,
+    endereco TEXT,
+    data_inicio DATE
+  )`);
+
   // Produtos
   db.run(`CREATE TABLE IF NOT EXISTS produtos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +44,9 @@ db.serialize(() => {
     quantidade INTEGER DEFAULT 0,
     validade DATE,
     preco REAL,
-    data_entrada DATE DEFAULT CURRENT_DATE
+    data_entrada DATE DEFAULT CURRENT_DATE,
+    fornecedor_id INTEGER,
+    FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
   )`);
 
   // Quebras

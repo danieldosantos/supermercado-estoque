@@ -49,6 +49,7 @@ router.get('/conferencia-saidas', (_, res) => res.sendFile(htmlPath('conferencia
 router.get('/conferencia-estoque', (_, res) => res.sendFile(htmlPath('conferencia_estoque.html')));
 router.get('/alterar-senha', (_, res) => res.sendFile(htmlPath('alterar_senha.html')));
 router.get('/admin-criar-usuario', (_, res) => res.sendFile(htmlPath('admin_criar_usuario.html')));
+router.get('/fornecedores', (_, res) => res.sendFile(htmlPath('fornecedores.html')));
 router.get('/login', (_, res) => res.sendFile(htmlPath('login.html')));
 router.get('/logs', (_, res) => res.sendFile(htmlPath('painel_logs.html')));
 router.get('/painel-admin', (_, res) => res.sendFile(htmlPath('painel_admin.html')));
@@ -133,7 +134,15 @@ router.put('/api/usuarios/:id/senha', authMiddleware, (req, res) => {
 
 // Produtos
 router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
-  const { nome, codigo_barras, departamento, quantidade, validade, preco } = req.body;
+  const {
+    nome,
+    codigo_barras,
+    departamento,
+    quantidade,
+    validade,
+    preco,
+    fornecedor_id,
+  } = req.body;
 
   if (!nome || !codigo_barras || !departamento || !preco) {
     return res.status(400).json({ erro: 'Campos obrigatórios não preenchidos' });
@@ -145,8 +154,9 @@ router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
     return res.status(400).json({ erro: 'Preço inválido' });
   }
 
-  const sql = `INSERT INTO produtos (nome, codigo_barras, departamento, quantidade, validade, preco) VALUES (?, ?, ?, ?, ?, ?)`;
-  db.run(sql, [nome, codigo_barras, departamento, qtd, validade, precoNum], function (err) {
+  const sql = `INSERT INTO produtos (nome, codigo_barras, departamento, quantidade, validade, preco, fornecedor_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [nome, codigo_barras, departamento, qtd, validade, precoNum, fornecedor_id || null], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Criação', 'Produto', `Produto ${nome} criado`, 'Admin']);
@@ -173,7 +183,7 @@ router.get('/api/produtos', authMiddleware, (req, res) => {
 });
 
 router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
-  const { nome, departamento, quantidade, preco, validade } = req.body;
+  const { nome, departamento, quantidade, preco, validade, fornecedor_id } = req.body;
   const { id } = req.params;
   const qtd = parseInt(quantidade, 10) || 0;
   const precoNum = parseFloat(String(preco).replace(/[R$\s\.]/g, '').replace(',', '.'));
@@ -181,8 +191,8 @@ router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
     return res.status(400).json({ erro: 'Preço inválido' });
   }
 
-  const sql = `UPDATE produtos SET nome = ?, departamento = ?, quantidade = ?, preco = ?, validade = ? WHERE id = ?`;
-  db.run(sql, [nome, departamento, qtd, precoNum, validade, id], function (err) {
+  const sql = `UPDATE produtos SET nome = ?, departamento = ?, quantidade = ?, preco = ?, validade = ?, fornecedor_id = ? WHERE id = ?`;
+  db.run(sql, [nome, departamento, qtd, precoNum, validade, fornecedor_id || null, id], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Edição', 'Produto', `Produto ID ${id} editado`, 'Admin']);
@@ -205,9 +215,9 @@ router.delete('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) =
 router.get('/api/produtos/export/csv', authMiddleware, adminMiddleware, (_, res) => {
   db.all('SELECT * FROM produtos', [], (err, rows) => {
     if (err) return res.status(500).json({ erro: err.message });
-    let csv = 'id,nome,codigo_barras,departamento,quantidade,validade,preco,data_entrada\n';
+    let csv = 'id,nome,codigo_barras,departamento,quantidade,validade,preco,data_entrada,fornecedor_id\n';
     rows.forEach(r => {
-      csv += `${r.id},${r.nome},${r.codigo_barras},${r.departamento},${r.quantidade},${r.validade || ''},${r.preco},${r.data_entrada}\n`;
+      csv += `${r.id},${r.nome},${r.codigo_barras},${r.departamento},${r.quantidade},${r.validade || ''},${r.preco},${r.data_entrada},${r.fornecedor_id || ''}\n`;
     });
     res.header('Content-Type', 'text/csv');
     res.attachment('produtos.csv');
@@ -383,6 +393,98 @@ router.delete('/api/saidas/:id', authMiddleware, adminMiddleware, (req, res) => 
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Exclusão', 'Saída', `Saída ID ${id} excluída`, 'Admin']);
     res.json({ deletado: true });
+  });
+});
+
+// Fornecedores
+router.post('/api/fornecedores', authMiddleware, adminMiddleware, (req, res) => {
+  const { nome, cnpj, telefone, email, endereco, data_inicio } = req.body;
+  const sql = `INSERT INTO fornecedores (nome, cnpj, telefone, email, endereco, data_inicio)
+               VALUES (?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [nome, cnpj, telefone, email, endereco, data_inicio], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.status(201).json({ id: this.lastID });
+  });
+});
+
+router.get('/api/fornecedores', authMiddleware, (req, res) => {
+  const sql = `SELECT f.*, GROUP_CONCAT(p.nome) AS produtos
+               FROM fornecedores f
+               LEFT JOIN produtos p ON p.fornecedor_id = f.id
+               GROUP BY f.id`;
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows.map(r => ({
+      id: r.id,
+      nome: r.nome,
+      cnpj: r.cnpj,
+      telefone: r.telefone,
+      email: r.email,
+      endereco: r.endereco,
+      data_inicio: r.data_inicio,
+      produtos: r.produtos ? r.produtos.split(',') : []
+    })));
+  });
+});
+
+router.put('/api/fornecedores/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { nome, cnpj, telefone, email, endereco, data_inicio } = req.body;
+  const sql = `UPDATE fornecedores SET nome = ?, cnpj = ?, telefone = ?, email = ?, endereco = ?, data_inicio = ? WHERE id = ?`;
+  db.run(sql, [nome, cnpj, telefone, email, endereco, data_inicio, id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json({ atualizado: this.changes > 0 });
+  });
+});
+
+router.delete('/api/fornecedores/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM fornecedores WHERE id = ?', [id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (this.changes === 0) return res.status(404).json({ erro: 'Registro não encontrado' });
+    res.json({ deletado: true });
+  });
+});
+
+router.get('/api/fornecedores/:id/relatorio', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { format } = req.query;
+  const sql = `SELECT
+      IFNULL(SUM(p.quantidade),0) AS itens_fornecidos,
+      IFNULL((SELECT SUM(q.quantidade) FROM quebras q JOIN produtos pr ON q.produto_id = pr.id WHERE pr.fornecedor_id = f.id),0) AS quebras,
+      IFNULL((SELECT SUM(pr.quantidade) FROM produtos pr WHERE pr.fornecedor_id = f.id AND pr.validade < date('now')),0) AS vencidos,
+      IFNULL(SUM(p.quantidade * p.preco),0) AS valor_total
+    FROM fornecedores f
+    LEFT JOIN produtos p ON p.fornecedor_id = f.id
+    WHERE f.id = ?
+    GROUP BY f.id`;
+  db.get(sql, [id], (err, row) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (!row) return res.status(404).json({ erro: 'Fornecedor não encontrado' });
+
+    if (format === 'csv') {
+      const csv = `itens_fornecidos,quebras,vencidos,valor_total\n${row.itens_fornecidos},${row.quebras},${row.vencidos},${row.valor_total}\n`;
+      res.header('Content-Type', 'text/csv');
+      res.attachment('relatorio.csv');
+      return res.send(csv);
+    }
+
+    if (format === 'pdf') {
+      let PDFDocument;
+      try { PDFDocument = require('pdfkit'); } catch (e) { PDFDocument = null; }
+      if (!PDFDocument) return res.status(500).json({ erro: 'PDF não suportado' });
+      const doc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=relatorio.pdf');
+      doc.pipe(res);
+      doc.text(`Itens Fornecidos: ${row.itens_fornecidos}`);
+      doc.text(`Quebras: ${row.quebras}`);
+      doc.text(`Vencidos: ${row.vencidos}`);
+      doc.text(`Valor Total: ${row.valor_total}`);
+      return doc.end();
+    }
+
+    res.json(row);
   });
 });
 
