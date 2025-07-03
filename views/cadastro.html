@@ -55,7 +55,7 @@
         <input type="number" name="quantidade" placeholder="Quantidade" min="0" required>
       </div>
       <div class="form-group">
-        <input type="text" name="preco" id="preco" placeholder="Preço Unitário (R$)" required>
+        <input type="text" name="preco" id="preco" placeholder="Preço Unitário (R$)" oninput="mascararPrecoInput(event)" required>
       </div>
       <div class="form-group">
         <label for="validade">Data de Validade:</label>
@@ -69,13 +69,6 @@
 
     <script src="/js/main.js"></script>
     <script>
-      const inputPreco = document.getElementById('preco');
-
-      inputPreco.addEventListener('input', () => {
-        let v = inputPreco.value.replace(/\D/g, '');
-        v = parseFloat(v) / 100;
-        inputPreco.value = formatarPreco(v);
-      });
 
       document.getElementById('formCadastro').addEventListener('submit', async (e) => {
         e.preventDefault();

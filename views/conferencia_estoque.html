@@ -74,7 +74,7 @@
           <input type="number" id="edit-quantidade" placeholder="Quantidade">
         </div>
         <div class="form-group">
-          <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)">
+          <input type="text" id="edit-preco" placeholder="Preço Unitário (R$)" oninput="mascararPrecoInput(event)">
         </div>
         <div class="form-group">
           <input type="date" id="edit-validade">
@@ -155,11 +155,6 @@
       document.getElementById('modalEdicao').style.display = 'none';
     }
 
-    document.getElementById('edit-preco').addEventListener('input', e => {
-      let v = e.target.value.replace(/\D/g, '');
-      v = parseFloat(v) / 100;
-      e.target.value = formatarPreco(v);
-    });
 
     document.getElementById('formEditar').addEventListener('submit', async (e) => {
       e.preventDefault();
