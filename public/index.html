@@ -43,17 +43,19 @@
     criarCard("/alterar-senha", "🔐 Alterar Senha");
 
     if (user.role === 'admin') {
-      criarCard("/cadastro", "📦 Cadastro de Produto");
-      criarCard("/quebras", "❌ Registro de Quebras");
-      criarCard("/saidas", "💰 Registro de Saídas");
-      criarCard("/logs", "🕵️ Logs de Rastreio");
-      criarCard("/painel-admin", "📊 Painel Admin");
-      criarCard("/admin-criar-usuario", "👤 Criar Novo Usuário");
+    criarCard("/cadastro", "📦 Cadastro de Produto");
+    criarCard("/quebras", "❌ Registro de Quebras");
+    criarCard("/saidas", "💰 Registro de Saídas");
+    criarCard("/fornecedores", "🚚 Fornecedores");
+    criarCard("/logs", "🕵️ Logs de Rastreio");
+    criarCard("/painel-admin", "📊 Painel Admin");
+    criarCard("/admin-criar-usuario", "👤 Criar Novo Usuário");
 
       linksAdmin.innerHTML = `
         <a href="/cadastro">📦 Cadastro</a>
         <a href="/quebras">❌ Quebras</a>
         <a href="/saidas">💰 Saídas</a>
+        <a href="/fornecedores">🚚 Fornecedores</a>
         <a href="/logs">🕵️ Logs</a>
         <a href="/painel-admin">📊 Painel</a>
         <a href="/admin-criar-usuario">👤 Novo Usuário</a>
