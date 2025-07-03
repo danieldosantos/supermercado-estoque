@@ -154,3 +154,45 @@ describe('Resumo por departamento', () => {
     expect(dep.valor_saidas).toBe(5);
   });
 });
+
+describe('Fornecedores CRUD', () => {
+  let fornecedorId;
+
+  test('criar fornecedor', async () => {
+    const res = await agent.post('/api/fornecedores').send({
+      nome: 'Fornecedor Teste',
+      cnpj: '00',
+      telefone: '1111',
+      email: 'f@teste',
+      endereco: 'Rua 1',
+      data_inicio: '2023-01-01'
+    });
+    expect(res.status).toBe(201);
+    fornecedorId = res.body.id;
+    expect(fornecedorId).toBeDefined();
+  });
+
+  test('listar fornecedores', async () => {
+    const res = await agent.get('/api/fornecedores');
+    expect(res.status).toBe(200);
+    const forn = res.body.find((f) => f.id === fornecedorId);
+    expect(forn).toBeDefined();
+  });
+
+  test('atualizar fornecedor', async () => {
+    const res = await agent.put(`/api/fornecedores/${fornecedorId}`).send({
+      nome: 'Fornecedor Editado',
+      cnpj: '11',
+      telefone: '2222',
+      email: 'f@edit',
+      endereco: 'Rua 2',
+      data_inicio: '2023-02-01'
+    });
+    expect(res.status).toBe(200);
+  });
+
+  test('excluir fornecedor', async () => {
+    const res = await agent.delete(`/api/fornecedores/${fornecedorId}`);
+    expect(res.status).toBe(200);
+  });
+});
