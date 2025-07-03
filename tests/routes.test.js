@@ -85,6 +85,10 @@ describe('Quebras e Saidas', () => {
       .send({ produto_id: produtoId, quantidade: 1, valor_quebra: 2.0 });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
+
+    const prodRes = await agent.get('/api/produtos');
+    const produto = prodRes.body.find((p) => p.id === produtoId);
+    expect(produto.quantidade).toBe(9);
   });
 
   test('registrar saida', async () => {
@@ -93,6 +97,10 @@ describe('Quebras e Saidas', () => {
       .send({ produto_id: produtoId, quantidade: 1, valor_saida: 3.0 });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
+
+    const prodRes = await agent.get('/api/produtos');
+    const produto = prodRes.body.find((p) => p.id === produtoId);
+    expect(produto.quantidade).toBe(8);
   });
 });
 

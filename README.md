@@ -74,6 +74,9 @@ node server/criarAdmin.js
 - `GET /api/notificacoes/validade` – lista produtos que vencem em até 20 dias.
 - `GET /api/departamentos/resumo` – valores de estoque, quebras e saídas por departamento.
 - `GET /api/logs` – lista logs (admin).
+- Ao registrar uma quebra ou saída a API verifica se o produto possui quantidade
+  suficiente. Caso contrário, o pedido é recusado com status 400. Quando o
+  registro é criado com sucesso a quantidade do produto é reduzida.
 
 ### Estilo de formulários
 
