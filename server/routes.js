@@ -223,6 +223,19 @@ router.get('/api/notificacoes/baixo-estoque', authMiddleware, (req, res) => {
   });
 });
 
+router.get('/api/notificacoes/validade', authMiddleware, (_req, res) => {
+  const sql = `SELECT nome, codigo_barras, validade, quantidade
+               FROM produtos
+               WHERE validade IS NOT NULL
+                 AND date(validade) >= date('now')
+                 AND date(validade) <= date('now', '+20 days')
+               ORDER BY date(validade)`;
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows);
+  });
+});
+
 // Quebras
 router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
   const { produto_id, quantidade, valor_quebra } = req.body;

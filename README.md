@@ -5,6 +5,7 @@ Sistema simples de controle de estoque com:
 - Registro de quebras
 - Registro de saídas (vendas)
 - Conferência de validade, quantidade e preço
+- Alertas de baixo estoque e vencimento
 
 ## Tecnologias
 - HTML, CSS, JavaScript
@@ -70,6 +71,7 @@ node server/criarAdmin.js
 - `DELETE /api/produtos/:id` – remove produto (admin).
 - `GET /api/produtos/export/csv` – exporta lista em CSV.
 - `GET /api/notificacoes/baixo-estoque` – avisa itens com baixo estoque.
+- `GET /api/notificacoes/validade` – lista produtos que vencem em até 20 dias.
 - `GET /api/logs` – lista logs (admin).
 
 ### Estilo de formulários

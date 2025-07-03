@@ -23,6 +23,7 @@
     <h1>Estoque por Produto</h1>
     <canvas id="graficoEstoque"></canvas>
     <div id="legenda"></div>
+    <div id="validade-alert"></div>
   </main>
 
   <script src="/js/main.js"></script>
@@ -91,6 +92,18 @@
         <a href="/admin-criar-usuario">👤 Novo Usuário</a>
       `;
     }
+  </script>
+  <script>
+    fetch('/api/notificacoes/validade')
+      .then(r => r.json())
+      .then(d => {
+        if (d.length) {
+          const div = document.getElementById('validade-alert');
+          div.innerHTML = `<h2>Produtos próximos do vencimento</h2><ul>` +
+            d.map(p => `<li>${p.nome} - ${p.quantidade} un. vence em ${p.validade}</li>`).join('') +
+            `</ul>`;
+        }
+      });
   </script>
 </body>
 </html>
