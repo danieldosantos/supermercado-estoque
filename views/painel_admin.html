@@ -23,6 +23,8 @@
     <h1>Estoque por Produto</h1>
     <canvas id="graficoEstoque"></canvas>
     <div id="legenda"></div>
+    <h2>Resumo por Departamento</h2>
+    <canvas id="graficoDepartamento"></canvas>
     <div id="validade-alert"></div>
   </main>
 
@@ -78,6 +80,31 @@
     }
 
     carregarGrafico();
+  </script>
+  <script>
+    async function carregarGraficoDepartamento() {
+      const res = await fetch('/api/departamentos/resumo');
+      const dados = await res.json();
+
+      const labels = dados.map(d => d.departamento);
+      const estoque = dados.map(d => d.valor_estoque);
+      const quebras = dados.map(d => d.valor_quebras);
+      const saidas = dados.map(d => d.valor_saidas);
+
+      new Chart(document.getElementById('graficoDepartamento'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Estoque', backgroundColor: '#7cb5ec', data: estoque },
+            { label: 'Quebras', backgroundColor: '#f15c80', data: quebras },
+            { label: 'Saídas', backgroundColor: '#90ed7d', data: saidas }
+          ]
+        }
+      });
+    }
+
+    carregarGraficoDepartamento();
   </script>
   <script>
     const user = JSON.parse(localStorage.getItem('usuarioLogado')) || {};
