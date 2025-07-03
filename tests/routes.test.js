@@ -102,6 +102,12 @@ describe('Quebras e Saidas', () => {
     const produto = prodRes.body.find((p) => p.id === produtoId);
     expect(produto.quantidade).toBe(8);
   });
+
+  test('quantidade final apos operacoes', async () => {
+    const res = await agent.get('/api/produtos');
+    const produto = res.body.find((p) => p.id === produtoId);
+    expect(produto.quantidade).toBe(8);
+  });
 });
 
 describe('Notificações de validade', () => {
@@ -129,7 +135,11 @@ describe('Notificações de validade', () => {
   test('listar produtos próximos do vencimento', async () => {
     const res = await agent.get('/api/notificacoes/validade');
     expect(res.status).toBe(200);
-    expect(res.body.some((p) => p.codigo_barras === '555')).toBe(true);
+    const prod = res.body.find((p) => p.codigo_barras === '555');
+    expect(prod).toBeDefined();
+    const dias =
+      (new Date(prod.validade) - new Date()) / (1000 * 60 * 60 * 24);
+    expect(dias).toBeLessThanOrEqual(20);
   });
 });
 
@@ -139,7 +149,7 @@ describe('Resumo por departamento', () => {
     expect(res.status).toBe(200);
     const dep = res.body.find((d) => d.departamento === 'Teste');
     expect(dep).toBeDefined();
-    expect(dep.valor_estoque).toBe(50);
+    expect(dep.valor_estoque).toBe(40);
     expect(dep.valor_quebras).toBe(5);
     expect(dep.valor_saidas).toBe(5);
   });
