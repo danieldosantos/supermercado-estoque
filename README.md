@@ -10,6 +10,7 @@ Sistema simples de controle de estoque com:
 - HTML, CSS, JavaScript
 - Node.js com Express
 - SQLite (banco de dados leve e embutido)
+- A sanitização básica dos campos é feita manualmente em `server/routes.js`. O middleware `xss-clean` foi removido por incompatibilidade com o Express 5.
 
 ## Configuração
 
