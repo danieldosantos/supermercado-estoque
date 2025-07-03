@@ -28,13 +28,22 @@ function formatarPreco(valor) {
 // Formata datas no formato brasileiro (dd/mm/aaaa)
 function formatarDataISO(iso) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('pt-BR');
+  const opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  return new Date(iso).toLocaleDateString('pt-BR', opcoes);
 }
 
 // Formata datas e horas no formato brasileiro (dd/mm/aaaa hh:mm:ss)
 function formatarDataHoraISO(iso) {
   if (!iso) return '';
-  return new Date(iso).toLocaleString('pt-BR');
+  const opcoes = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  };
+  return new Date(iso).toLocaleString('pt-BR', opcoes).replace(',', '');
 }
 
 // Mascara campos de preço permitindo apenas dígitos e
