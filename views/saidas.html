@@ -34,7 +34,7 @@
         <input type="number" name="quantidade" placeholder="Quantidade Vendida" required>
       </div>
       <div class="form-group">
-        <input type="text" name="valor_saida" id="valor_saida" placeholder="Valor Total da Venda (R$)" required>
+        <input type="text" name="valor_saida" id="valor_saida" placeholder="Valor Total da Venda (R$)" oninput="mascararPrecoInput(event)" required>
       </div>
       <div class="form-group">
         <button type="submit">Registrar Saída</button>
@@ -56,11 +56,6 @@
         });
       }
 
-      document.getElementById('valor_saida').addEventListener('input', e => {
-        let v = e.target.value.replace(/\D/g, '');
-        v = parseFloat(v) / 100;
-        e.target.value = formatarPreco(v);
-      });
 
       document.getElementById('formSaida').addEventListener('submit', async (e) => {
         e.preventDefault();

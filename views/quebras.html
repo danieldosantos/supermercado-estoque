@@ -34,7 +34,7 @@
         <input type="number" name="quantidade" placeholder="Quantidade Quebrada" required>
       </div>
       <div class="form-group">
-        <input type="text" name="valor_quebra" id="valor_quebra" placeholder="Valor Total da Quebra (R$)" required>
+        <input type="text" name="valor_quebra" id="valor_quebra" placeholder="Valor Total da Quebra (R$)" oninput="mascararPrecoInput(event)" required>
       </div>
       <div class="form-group">
         <button type="submit">Registrar Quebra</button>
@@ -55,11 +55,6 @@
         });
       }
 
-      document.getElementById('valor_quebra').addEventListener('input', e => {
-        let v = e.target.value.replace(/\D/g, '');
-        v = parseFloat(v) / 100;
-        e.target.value = formatarPreco(v);
-      });
 
       document.getElementById('formQuebra').addEventListener('submit', async (e) => {
         e.preventDefault();

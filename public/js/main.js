@@ -36,3 +36,16 @@ function formatarDataHoraISO(iso) {
   if (!iso) return '';
   return new Date(iso).toLocaleString('pt-BR');
 }
+
+// Mascara campos de preço permitindo apenas dígitos e
+// exibindo o valor formatado em reais conforme a digitação
+function mascararPrecoInput(event) {
+  const input = event.target;
+  const digits = input.value.replace(/\D/g, '');
+  const valor = parseFloat(digits) / 100;
+  const formatador = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+  input.value = formatador.format(isNaN(valor) ? 0 : valor);
+}
