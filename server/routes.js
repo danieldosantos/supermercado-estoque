@@ -5,30 +5,41 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-// Função simples para evitar XSS removendo < e > dos campos
-const sanitize = (str) => String(str).replace(/[<>]/g, '');
+// Chave secreta simples para assinar tokens JWT
+const SECRET = process.env.JWT_SECRET || 'chave-secreta';
 
-// Sessões em memória
-const sessions = {};
+function base64url(input) {
+  return Buffer.from(input).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
 
 function createSession(user) {
-  const token = crypto.randomBytes(16).toString('hex');
-  sessions[token] = { user, exp: Date.now() + 60 * 60 * 1000 };
-  return token;
+  const header = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = base64url(JSON.stringify({ user, exp: Math.floor(Date.now() / 1000) + 60 * 60 }));
+  const signature = base64url(crypto.createHmac('sha256', SECRET).update(`${header}.${payload}`).digest('base64'));
+  return `${header}.${payload}.${signature}`;
 }
 
 function getSession(token) {
-  const sess = sessions[token];
-  if (!sess) return null;
-  if (sess.exp < Date.now()) {
-    delete sessions[token];
+  if (!token) return null;
+  const [headerB64, payloadB64, signature] = token.split('.');
+  if (!headerB64 || !payloadB64 || !signature) return null;
+  const expected = base64url(crypto.createHmac('sha256', SECRET).update(`${headerB64}.${payloadB64}`).digest('base64'));
+  if (expected !== signature) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf8'));
+    if (payload.exp * 1000 < Date.now()) return null;
+    return payload.user;
+  } catch (e) {
     return null;
   }
-  return sess.user;
 }
 
+// Função simples para evitar XSS removendo < e > dos campos
+const sanitize = (str) => String(str).replace(/[<>]/g, '');
+
 function authMiddleware(req, res, next) {
-  const token = req.headers['x-session-token'];
+  const header = req.headers['authorization'] || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
   const user = getSession(token);
   if (!user) return res.status(401).json({ erro: 'Sessão inválida' });
   req.user = user;
@@ -89,8 +100,6 @@ router.post('/api/login', (req, res) => {
 });
 
 router.post('/api/logout', (req, res) => {
-  const token = req.headers['x-session-token'];
-  if (token) delete sessions[token];
   res.json({ sucesso: true });
 });
 
