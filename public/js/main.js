@@ -24,3 +24,15 @@ function formatarPreco(valor) {
     currency: 'BRL'
   }).format(valor);
 }
+
+// Formata datas no formato brasileiro (dd/mm/aaaa)
+function formatarDataISO(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('pt-BR');
+}
+
+// Formata datas e horas no formato brasileiro (dd/mm/aaaa hh:mm:ss)
+function formatarDataHoraISO(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('pt-BR');
+}

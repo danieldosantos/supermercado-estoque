@@ -129,7 +129,7 @@
         if (d.length) {
           const div = document.getElementById('validade-alert');
           div.innerHTML = `<h2>Produtos próximos do vencimento</h2><ul>` +
-            d.map(p => `<li>${p.nome} - ${p.quantidade} un. vence em ${p.validade}</li>`).join('') +
+            d.map(p => `<li>${p.nome} - ${p.quantidade} un. vence em ${formatarDataISO(p.validade)}</li>`).join('') +
             `</ul>`;
         }
       });
