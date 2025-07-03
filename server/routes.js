@@ -3,33 +3,13 @@ const router = express.Router();
 const db = require('./db');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+const cookie = require('cookie');
 
 // Função simples para evitar XSS removendo < e > dos campos
 const sanitize = (str) => String(str).replace(/[<>]/g, '');
 
-// Sessões em memória
-const sessions = {};
-
-function createSession(user) {
-  const token = crypto.randomBytes(16).toString('hex');
-  sessions[token] = { user, exp: Date.now() + 60 * 60 * 1000 };
-  return token;
-}
-
-function getSession(token) {
-  const sess = sessions[token];
-  if (!sess) return null;
-  if (sess.exp < Date.now()) {
-    delete sessions[token];
-    return null;
-  }
-  return sess.user;
-}
-
 function authMiddleware(req, res, next) {
-  const token = req.headers['x-session-token'];
-  const user = getSession(token);
+  const user = req.session && req.session.user;
   if (!user) return res.status(401).json({ erro: 'Sessão inválida' });
   req.user = user;
   next();
@@ -84,16 +64,21 @@ router.post('/api/login', (req, res) => {
     bcrypt.compare(senha, user.senha_hash, (err, ok) => {
       if (err) return res.status(500).json({ erro: 'Erro ao verificar senha' });
       if (!ok) return res.status(401).json({ erro: 'Senha inválida' });
-      const token = createSession({ id: user.id, nome: user.nome, role: user.role });
-      res.json({ id: user.id, nome: user.nome, role: user.role, token });
+      req.session.user = { id: user.id, nome: user.nome, role: user.role };
+      res.json({ id: user.id, nome: user.nome, role: user.role });
     });
   });
 });
 
 router.post('/api/logout', (req, res) => {
-  const token = req.headers['x-session-token'];
-  if (token) delete sessions[token];
-  res.json({ sucesso: true });
+  if (req.sessionID) {
+    req.sessionStore.destroy(req.sessionID, () => {
+      res.setHeader('Set-Cookie', cookie.serialize('sid', '', { maxAge: 0, path: '/' }));
+      res.json({ sucesso: true });
+    });
+  } else {
+    res.json({ sucesso: true });
+  }
 });
 
 // Criar novo usuário

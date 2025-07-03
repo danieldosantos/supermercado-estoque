@@ -1,13 +1,12 @@
 const request = require('supertest');
 const app = require('./setup');
 
-let token;
+const agent = request.agent(app);
 
 beforeAll(async () => {
-  const res = await request(app)
+  await agent
     .post('/api/login')
     .send({ email: 'admin', senha: 'admin12345' });
-  token = res.body.token;
 });
 
 describe('Login', () => {
@@ -16,18 +15,15 @@ describe('Login', () => {
       .post('/api/login')
       .send({ email: 'admin', senha: 'admin12345' });
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('token');
   });
 });
 
 describe('Produtos CRUD', () => {
   let produtoId;
-  const headers = () => ({ 'x-session-token': token });
 
   test('create produto', async () => {
-    const res = await request(app)
+    const res = await agent
       .post('/api/produtos')
-      .set(headers())
       .send({
         nome: 'Teste',
         codigo_barras: '123',
@@ -42,17 +38,14 @@ describe('Produtos CRUD', () => {
   });
 
   test('get produtos', async () => {
-    const res = await request(app)
-      .get('/api/produtos')
-      .set(headers());
+    const res = await agent.get('/api/produtos');
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
   test('update produto', async () => {
-    const res = await request(app)
+    const res = await agent
       .put(`/api/produtos/${produtoId}`)
-      .set(headers())
       .send({
         nome: 'Teste2',
         departamento: 'Mercearia',
@@ -64,21 +57,17 @@ describe('Produtos CRUD', () => {
   });
 
   test('delete produto', async () => {
-    const res = await request(app)
-      .delete(`/api/produtos/${produtoId}`)
-      .set(headers());
+    const res = await agent.delete(`/api/produtos/${produtoId}`);
     expect(res.status).toBe(200);
   });
 });
 
 describe('Quebras e Saidas', () => {
   let produtoId;
-  const headers = () => ({ 'x-session-token': token });
 
   beforeAll(async () => {
-    const res = await request(app)
+    const res = await agent
       .post('/api/produtos')
-      .set(headers())
       .send({
         nome: 'ProdutoQS',
         codigo_barras: '999',
@@ -91,18 +80,16 @@ describe('Quebras e Saidas', () => {
   });
 
   test('registrar quebra', async () => {
-    const res = await request(app)
+    const res = await agent
       .post('/api/quebras')
-      .set(headers())
       .send({ produto_id: produtoId, quantidade: 1, valor_quebra: 2.0 });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
   });
 
   test('registrar saida', async () => {
-    const res = await request(app)
+    const res = await agent
       .post('/api/saidas')
-      .set(headers())
       .send({ produto_id: produtoId, quantidade: 1, valor_saida: 3.0 });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
