@@ -7,8 +7,10 @@ const loadEnv = require('../loadEnv');
 loadEnv();
 
 // Caminho do arquivo do banco
+// Se DB_PATH estiver definido, o valor é resolvido relativo à raiz do projeto
+// para permitir definir caminhos fora da pasta `server`
 const dbPath = process.env.DB_PATH
-  ? path.resolve(__dirname, process.env.DB_PATH)
+  ? path.resolve(process.cwd(), process.env.DB_PATH)
   : path.resolve(__dirname, 'estoque.sqlite');
 
 // Conecta ao banco (cria se não existir)

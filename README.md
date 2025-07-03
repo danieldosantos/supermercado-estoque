@@ -17,7 +17,7 @@ Crie um arquivo `.env` na raiz do projeto baseado em `.env.example` com as segui
 
 ```
 PORT=3000
-DB_PATH=./server/estoque.sqlite
+DB_PATH=server/estoque.sqlite
 ```
 
 - `PORT` define a porta em que o servidor Express irá escutar.
