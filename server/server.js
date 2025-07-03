@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const xssClean = require('xss-clean');
 const path = require('path');
 const routes = require('./routes');
 const loadEnv = require('../loadEnv');
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(xssClean());
 app.use(session({ cookie: { maxAge: 60 * 60 * 1000 } }));
 
 // Servir arquivos estáticos
