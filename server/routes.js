@@ -4,6 +4,23 @@ const db = require('./db');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const cookie = require('cookie');
+let transporter = null;
+if (process.env.EMAIL_HOST) {
+  try {
+    const nodemailer = require('nodemailer');
+    transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: Number(process.env.EMAIL_PORT) || 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+  } catch (e) {
+    console.error('Falha ao configurar email:', e.message);
+  }
+}
 
 // Função simples para evitar XSS removendo < e > dos campos
 const sanitize = (str) => String(str).replace(/[<>]/g, '');
@@ -36,6 +53,58 @@ function sanitizeBody(req, _res, next) {
 
 // Aplica sanitização a todas as rotas POST/PUT
 router.use(express.json(), sanitizeBody);
+
+function enviarEmail(prod) {
+  if (!transporter || !process.env.EMAIL_TO || !process.env.EMAIL_FROM) return;
+  const mail = {
+    from: process.env.EMAIL_FROM,
+    to: process.env.EMAIL_TO,
+    subject: 'Alerta de Ruptura',
+    text: `O produto ${prod.nome} atingiu o estoque mínimo (${prod.quantidade}/${prod.estoque_minimo}).`,
+  };
+  transporter.sendMail(mail, (err) => {
+    if (err) console.error('Erro ao enviar email:', err.message);
+  });
+}
+
+function checkRuptura(produtoId) {
+  db.get(
+    'SELECT id, nome, quantidade, estoque_minimo FROM produtos WHERE id = ?',
+    [produtoId],
+    (err, prod) => {
+      if (err || !prod) return;
+      db.get(
+        'SELECT * FROM alertas_ruptura WHERE produto_id = ?',
+        [produtoId],
+        (err2, al) => {
+          if (err2) return;
+          if (prod.quantidade <= prod.estoque_minimo) {
+            if (!al) {
+              db.run(
+                'INSERT INTO alertas_ruptura (produto_id, notificado) VALUES (?, 0)',
+                [produtoId],
+                function (e) {
+                  if (!e) enviarEmail(prod);
+                  db.run('UPDATE alertas_ruptura SET notificado = 1 WHERE id = ?', [this.lastID]);
+                }
+              );
+            } else if (al.resolvido === 1) {
+              db.run('UPDATE alertas_ruptura SET resolvido = 0, notificado = 0 WHERE id = ?', [al.id], () => {
+                enviarEmail(prod);
+                db.run('UPDATE alertas_ruptura SET notificado = 1 WHERE id = ?', [al.id]);
+              });
+            } else if (!al.notificado) {
+              enviarEmail(prod);
+              db.run('UPDATE alertas_ruptura SET notificado = 1 WHERE id = ?', [al.id]);
+            }
+          } else if (al && al.resolvido === 0) {
+            db.run('UPDATE alertas_ruptura SET resolvido = 1 WHERE id = ?', [al.id]);
+          }
+        }
+      );
+    }
+  );
+}
 
 const htmlPath = (page) => path.join(__dirname, '..', 'views', page);
 const publicPath = (page) => path.join(__dirname, '..', 'public', page);
@@ -143,6 +212,7 @@ router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
     validade,
     preco,
     fornecedor_id,
+    estoque_minimo,
   } = req.body;
 
   if (!nome || !codigo_barras || !departamento || !preco) {
@@ -155,9 +225,10 @@ router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
     return res.status(400).json({ erro: 'Preço inválido' });
   }
 
-  const sql = `INSERT INTO produtos (nome, codigo_barras, departamento, quantidade, validade, preco, fornecedor_id)
-               VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  db.run(sql, [nome, codigo_barras, departamento, qtd, validade, precoNum, fornecedor_id || null], function (err) {
+  const minimo = parseInt(estoque_minimo, 10) || 0;
+  const sql = `INSERT INTO produtos (nome, codigo_barras, departamento, quantidade, validade, preco, fornecedor_id, estoque_minimo)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [nome, codigo_barras, departamento, qtd, validade, precoNum, fornecedor_id || null, minimo], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Criação', 'Produto', `Produto ${nome} criado`, req.user.nome]);
@@ -165,6 +236,7 @@ router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
       `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
       [this.lastID, 'criado', qtd, req.user.nome]
     );
+    checkRuptura(this.lastID);
     res.status(201).json({ id: this.lastID });
   });
 });
@@ -188,7 +260,7 @@ router.get('/api/produtos', authMiddleware, (req, res) => {
 });
 
 router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
-  const { nome, departamento, quantidade, preco, validade, fornecedor_id } = req.body;
+  const { nome, departamento, quantidade, preco, validade, fornecedor_id, estoque_minimo } = req.body;
   const { id } = req.params;
   const qtd = parseInt(quantidade, 10) || 0;
   const precoNum = parseFloat(String(preco).replace(/[R$\s\.]/g, '').replace(',', '.'));
@@ -196,8 +268,9 @@ router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
     return res.status(400).json({ erro: 'Preço inválido' });
   }
 
-  const sql = `UPDATE produtos SET nome = ?, departamento = ?, quantidade = ?, preco = ?, validade = ?, fornecedor_id = ? WHERE id = ?`;
-  db.run(sql, [nome, departamento, qtd, precoNum, validade, fornecedor_id || null, id], function (err) {
+  const minimo = parseInt(estoque_minimo, 10);
+  const sql = `UPDATE produtos SET nome = ?, departamento = ?, quantidade = ?, preco = ?, validade = ?, fornecedor_id = ?, estoque_minimo = ? WHERE id = ?`;
+  db.run(sql, [nome, departamento, qtd, precoNum, validade, fornecedor_id || null, isNaN(minimo) ? 0 : minimo, id], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
       ['Edição', 'Produto', `Produto ID ${id} editado`, req.user.nome]);
@@ -205,6 +278,7 @@ router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
       `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
       [id, 'editado', qtd, req.user.nome]
     );
+    checkRuptura(id);
     res.status(200).json({ atualizado: true });
   });
 });
@@ -255,6 +329,24 @@ router.get('/api/notificacoes/validade', authMiddleware, (_req, res) => {
   });
 });
 
+router.get('/api/notificacoes/rupturas', authMiddleware, adminMiddleware, (_req, res) => {
+  const sql = `SELECT ar.id as alerta_id, p.id, p.nome, p.quantidade, p.estoque_minimo
+               FROM alertas_ruptura ar JOIN produtos p ON ar.produto_id = p.id
+               WHERE ar.resolvido = 0`;
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(rows);
+  });
+});
+
+router.post('/api/notificacoes/rupturas/:id/resolver', authMiddleware, adminMiddleware, (req, res) => {
+  const { id } = req.params;
+  db.run('UPDATE alertas_ruptura SET resolvido = 1 WHERE id = ?', [id], function (err) {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json({ atualizado: this.changes > 0 });
+  });
+});
+
 router.get('/api/produtos/:id/movimentacoes', authMiddleware, (req, res) => {
   const { id } = req.params;
   db.all(
@@ -289,6 +381,7 @@ router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
         `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
         [produto_id, 'quebra', qtd, req.user.nome]
       );
+      checkRuptura(produto_id);
       res.status(201).json({ id: this.lastID });
     });
   });
@@ -368,6 +461,7 @@ router.post('/api/saidas', authMiddleware, adminMiddleware, (req, res) => {
         `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
         [produto_id, 'saida', qtd, req.user.nome]
       );
+      checkRuptura(produto_id);
       res.status(201).json({ id: this.lastID });
     });
   });

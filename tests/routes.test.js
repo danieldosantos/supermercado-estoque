@@ -208,3 +208,54 @@ describe('Fornecedores CRUD', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Alertas de Ruptura', () => {
+  let produtoId;
+
+  beforeAll(async () => {
+    const res = await agent.post('/api/produtos').send({
+      nome: 'Ruptura',
+      codigo_barras: '777',
+      departamento: 'Teste',
+      quantidade: 3,
+      estoque_minimo: 2,
+      validade: '2030-01-01',
+      preco: 1.0
+    });
+    produtoId = res.body.id;
+  });
+
+  afterAll(async () => {
+    await agent.delete(`/api/produtos/${produtoId}`);
+  });
+
+  test('gera alerta quando abaixo do minimo', async () => {
+    await agent.post('/api/saidas').send({ produto_id: produtoId, quantidade: 2, valor_saida: 1 });
+    const res = await agent.get('/api/notificacoes/rupturas');
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(1);
+  });
+
+  test('resolver alerta e remover da listagem', async () => {
+    const list = await agent.get('/api/notificacoes/rupturas');
+    const alertaId = list.body[0].alerta_id;
+    const r = await agent.post(`/api/notificacoes/rupturas/${alertaId}/resolver`);
+    expect(r.status).toBe(200);
+    const res2 = await agent.get('/api/notificacoes/rupturas');
+    expect(res2.body.length).toBe(0);
+  });
+
+  test('alerta some ao aumentar quantidade', async () => {
+    await agent.put(`/api/produtos/${produtoId}`).send({
+      nome: 'Ruptura',
+      departamento: 'Teste',
+      quantidade: 5,
+      preco: 1.0,
+      validade: '2030-01-01',
+      fornecedor_id: null,
+      estoque_minimo: 2
+    });
+    const res = await agent.get('/api/notificacoes/rupturas');
+    expect(res.body.length).toBe(0);
+  });
+});

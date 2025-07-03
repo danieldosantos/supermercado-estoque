@@ -16,7 +16,8 @@
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "nodemailer": "^6.9.8"
   },
   "devDependencies": {
     "jest": "^29.6.0",

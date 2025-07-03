@@ -46,6 +46,7 @@ db.serialize(() => {
     preco REAL,
     data_entrada DATE DEFAULT CURRENT_DATE,
     fornecedor_id INTEGER,
+    estoque_minimo INTEGER DEFAULT 0,
     FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
   )`);
 
@@ -77,6 +78,14 @@ db.serialize(() => {
     quantidade INTEGER,
     data DATE DEFAULT CURRENT_DATE,
     usuario TEXT,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS alertas_ruptura (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    produto_id INTEGER UNIQUE,
+    resolvido INTEGER DEFAULT 0,
+    notificado INTEGER DEFAULT 0,
     FOREIGN KEY (produto_id) REFERENCES produtos(id)
   )`);
 

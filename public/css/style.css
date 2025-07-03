@@ -132,6 +132,10 @@ h1 {
   border: 1px solid #f1c40f;
 }
 
+.card.ruptura {
+  border: 2px solid red;
+}
+
 /* Estilos do painel de logs */
 .logs-container {
   max-width: 1000px;
