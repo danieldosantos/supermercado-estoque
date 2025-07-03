@@ -50,6 +50,7 @@ router.get('/conferencia-estoque', (_, res) => res.sendFile(htmlPath('conferenci
 router.get('/alterar-senha', (_, res) => res.sendFile(htmlPath('alterar_senha.html')));
 router.get('/admin-criar-usuario', (_, res) => res.sendFile(htmlPath('admin_criar_usuario.html')));
 router.get('/fornecedores', (_, res) => res.sendFile(htmlPath('fornecedores.html')));
+router.get('/produtos/:id/movimentacoes', (_, res) => res.sendFile(htmlPath('movimentacoes.html')));
 router.get('/login', (_, res) => res.sendFile(htmlPath('login.html')));
 router.get('/logs', (_, res) => res.sendFile(htmlPath('painel_logs.html')));
 router.get('/painel-admin', (_, res) => res.sendFile(htmlPath('painel_admin.html')));
@@ -159,7 +160,11 @@ router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
   db.run(sql, [nome, codigo_barras, departamento, qtd, validade, precoNum, fornecedor_id || null], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
-      ['Criação', 'Produto', `Produto ${nome} criado`, 'Admin']);
+      ['Criação', 'Produto', `Produto ${nome} criado`, req.user.nome]);
+    db.run(
+      `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
+      [this.lastID, 'criado', qtd, req.user.nome]
+    );
     res.status(201).json({ id: this.lastID });
   });
 });
@@ -195,7 +200,11 @@ router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
   db.run(sql, [nome, departamento, qtd, precoNum, validade, fornecedor_id || null, id], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
     db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
-      ['Edição', 'Produto', `Produto ID ${id} editado`, 'Admin']);
+      ['Edição', 'Produto', `Produto ID ${id} editado`, req.user.nome]);
+    db.run(
+      `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
+      [id, 'editado', qtd, req.user.nome]
+    );
     res.status(200).json({ atualizado: true });
   });
 });
@@ -246,6 +255,18 @@ router.get('/api/notificacoes/validade', authMiddleware, (_req, res) => {
   });
 });
 
+router.get('/api/produtos/:id/movimentacoes', authMiddleware, (req, res) => {
+  const { id } = req.params;
+  db.all(
+    `SELECT acao, quantidade, data, usuario FROM movimentacoes WHERE produto_id = ? ORDER BY id`,
+    [id],
+    (err, rows) => {
+      if (err) return res.status(500).json({ erro: err.message });
+      res.json(rows);
+    }
+  );
+});
+
 // Quebras
 router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
   const { produto_id, quantidade, valor_quebra } = req.body;
@@ -263,7 +284,11 @@ router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
       if (err) return res.status(500).json({ erro: err.message });
       db.run(`UPDATE produtos SET quantidade = quantidade - ? WHERE id = ?`, [qtd, produto_id]);
       db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
-        ['Criação', 'Quebra', `Quebra ID ${this.lastID} criada`, 'Admin']);
+        ['Criação', 'Quebra', `Quebra ID ${this.lastID} criada`, req.user.nome]);
+      db.run(
+        `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
+        [produto_id, 'quebra', qtd, req.user.nome]
+      );
       res.status(201).json({ id: this.lastID });
     });
   });
@@ -338,7 +363,11 @@ router.post('/api/saidas', authMiddleware, adminMiddleware, (req, res) => {
       if (err) return res.status(500).json({ erro: err.message });
       db.run(`UPDATE produtos SET quantidade = quantidade - ? WHERE id = ?`, [qtd, produto_id]);
       db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
-        ['Criação', 'Saída', `Saída ID ${this.lastID} criada`, 'Admin']);
+        ['Criação', 'Saída', `Saída ID ${this.lastID} criada`, req.user.nome]);
+      db.run(
+        `INSERT INTO movimentacoes (produto_id, acao, quantidade, usuario) VALUES (?, ?, ?, ?)`,
+        [produto_id, 'saida', qtd, req.user.nome]
+      );
       res.status(201).json({ id: this.lastID });
     });
   });
