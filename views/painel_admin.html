@@ -26,6 +26,7 @@
     <h2>Resumo por Departamento</h2>
     <canvas id="graficoDepartamento"></canvas>
     <div id="validade-alert"></div>
+    <div id="ruptura-alert" class="card-grid"></div>
   </main>
 
   <script src="/js/main.js"></script>
@@ -131,6 +132,28 @@
             `</ul>`;
         }
       });
+
+    function carregarRupturas() {
+      fetch('/api/notificacoes/rupturas')
+        .then(r => r.json())
+        .then(d => {
+          const div = document.getElementById('ruptura-alert');
+          if (!d.length) { div.innerHTML = ''; return; }
+          div.innerHTML = d.map(p =>
+            `<div class="card ruptura">
+               <strong>${p.nome}</strong><br>
+               ${p.quantidade} / ${p.estoque_minimo}
+               <button onclick="resolverRuptura(${p.alerta_id})">Resolver</button>
+             </div>`).join('');
+        });
+    }
+
+    function resolverRuptura(id) {
+      fetch('/api/notificacoes/rupturas/' + id + '/resolver', {method:'POST'})
+        .then(() => carregarRupturas());
+    }
+
+    carregarRupturas();
   </script>
 </body>
 </html>
