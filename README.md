@@ -88,8 +88,18 @@ uniformes.
 
 ## Testes
 
-Quando os testes forem implementados, execute-os com:
+Antes de rodar a suíte de testes, certifique-se de que todas as dependências
+(inclusive as de desenvolvimento) estão instaladas:
+
+```bash
+npm install
+```
+
+Em seguida execute:
 
 ```bash
 npm test
 ```
+
+Para ambientes de automação (como pipelines de CI/CD) recomenda-se criar um
+script de setup que execute o `npm install` antes de rodar os testes.
