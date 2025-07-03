@@ -56,6 +56,12 @@ describe('Produtos CRUD', () => {
     expect(res.status).toBe(200);
   });
 
+  test('movimentacoes registradas', async () => {
+    const res = await agent.get(`/api/produtos/${produtoId}/movimentacoes`);
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(2);
+  });
+
   test('delete produto', async () => {
     const res = await agent.delete(`/api/produtos/${produtoId}`);
     expect(res.status).toBe(200);
@@ -107,6 +113,12 @@ describe('Quebras e Saidas', () => {
     const res = await agent.get('/api/produtos');
     const produto = res.body.find((p) => p.id === produtoId);
     expect(produto.quantidade).toBe(8);
+  });
+
+  test('historico de movimentacoes', async () => {
+    const res = await agent.get(`/api/produtos/${produtoId}/movimentacoes`);
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(3);
   });
 });
 

@@ -69,6 +69,17 @@ db.serialize(() => {
     FOREIGN KEY (produto_id) REFERENCES produtos(id)
   )`);
 
+  // Movimentações
+  db.run(`CREATE TABLE IF NOT EXISTS movimentacoes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    produto_id INTEGER,
+    acao TEXT,
+    quantidade INTEGER,
+    data DATE DEFAULT CURRENT_DATE,
+    usuario TEXT,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+  )`);
+
   // Usuários
   db.run(`CREATE TABLE IF NOT EXISTS usuarios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
