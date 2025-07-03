@@ -4,6 +4,7 @@ const db = require('./db');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const cookie = require('cookie');
+const { parsePrecoBR } = require('./priceUtils');
 let transporter = null;
 if (process.env.EMAIL_HOST) {
   try {
@@ -220,7 +221,7 @@ router.post('/api/produtos', authMiddleware, adminMiddleware, (req, res) => {
   }
 
   const qtd = parseInt(quantidade, 10) || 0;
-  const precoNum = parseFloat(String(preco).replace(/[R$\s\.]/g, '').replace(',', '.'));
+  const precoNum = parsePrecoBR(preco);
   if (isNaN(precoNum)) {
     return res.status(400).json({ erro: 'Preço inválido' });
   }
@@ -263,7 +264,7 @@ router.put('/api/produtos/:id', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, departamento, quantidade, preco, validade, fornecedor_id, estoque_minimo } = req.body;
   const { id } = req.params;
   const qtd = parseInt(quantidade, 10) || 0;
-  const precoNum = parseFloat(String(preco).replace(/[R$\s\.]/g, '').replace(',', '.'));
+  const precoNum = parsePrecoBR(preco);
   if (isNaN(precoNum)) {
     return res.status(400).json({ erro: 'Preço inválido' });
   }
@@ -363,7 +364,7 @@ router.get('/api/produtos/:id/movimentacoes', authMiddleware, (req, res) => {
 router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
   const { produto_id, quantidade, valor_quebra } = req.body;
   const qtd = parseInt(quantidade, 10) || 0;
-  const valorNum = parseFloat(String(valor_quebra).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const valorNum = parsePrecoBR(valor_quebra);
 
   db.get('SELECT quantidade FROM produtos WHERE id = ?', [produto_id], (err, row) => {
     if (err) return res.status(500).json({ erro: err.message });
@@ -418,7 +419,7 @@ router.put('/api/quebras/:id', authMiddleware, adminMiddleware, (req, res) => {
   const { id } = req.params;
   const { produto_id, quantidade, valor_quebra, data_quebra } = req.body;
   const qtd = parseInt(quantidade, 10) || 0;
-  const valorNum = parseFloat(String(valor_quebra).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const valorNum = parsePrecoBR(valor_quebra);
   const sql = `UPDATE quebras SET produto_id = ?, quantidade = ?, valor_quebra = ?, data_quebra = ? WHERE id = ?`;
   db.run(sql, [produto_id, qtd, valorNum, data_quebra, id], function (err) {
     if (err) return res.status(500).json({ erro: err.message });
@@ -443,7 +444,7 @@ router.delete('/api/quebras/:id', authMiddleware, adminMiddleware, (req, res) =>
 router.post('/api/saidas', authMiddleware, adminMiddleware, (req, res) => {
   const { produto_id, quantidade, valor_saida } = req.body;
   const qtd = parseInt(quantidade, 10) || 0;
-  const valorNum = parseFloat(String(valor_saida).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const valorNum = parsePrecoBR(valor_saida);
 
   db.get('SELECT quantidade FROM produtos WHERE id = ?', [produto_id], (err, row) => {
     if (err) return res.status(500).json({ erro: err.message });
@@ -498,7 +499,7 @@ router.put('/api/saidas/:id', authMiddleware, adminMiddleware, (req, res) => {
   const { id } = req.params;
   const { produto_id, quantidade, valor_saida, data_saida } = req.body;
   const qtd = parseInt(quantidade, 10) || 0;
-  const valorNum = parseFloat(String(valor_saida).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
+  const valorNum = parsePrecoBR(valor_saida);
   const sql = `UPDATE saidas SET produto_id = ?, quantidade = ?, valor_saida = ?, data_saida = ? WHERE id = ?`;
   db.run(sql, [produto_id, qtd, valorNum, data_saida, id], function (err) {
     if (err) return res.status(500).json({ erro: err.message });

@@ -30,7 +30,7 @@ describe('Produtos CRUD', () => {
         departamento: 'Bebidas',
         quantidade: 5,
         validade: '2030-01-01',
-        preco: 10.5
+        preco: "10,5"
       });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
@@ -51,7 +51,7 @@ describe('Produtos CRUD', () => {
         departamento: 'Mercearia',
         quantidade: 8,
         validade: '2030-06-01',
-        preco: 12.0
+        preco: "12"
       });
     expect(res.status).toBe(200);
   });
@@ -80,7 +80,7 @@ describe('Quebras e Saidas', () => {
         departamento: 'Teste',
         quantidade: 10,
         validade: '2030-12-31',
-        preco: 5.0
+        preco: "5"
       });
     produtoId = res.body.id;
   });
@@ -88,7 +88,7 @@ describe('Quebras e Saidas', () => {
   test('registrar quebra', async () => {
     const res = await agent
       .post('/api/quebras')
-      .send({ produto_id: produtoId, quantidade: 1, valor_quebra: 2.0 });
+      .send({ produto_id: produtoId, quantidade: 1, valor_quebra: "2" });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
 
@@ -100,7 +100,7 @@ describe('Quebras e Saidas', () => {
   test('registrar saida', async () => {
     const res = await agent
       .post('/api/saidas')
-      .send({ produto_id: produtoId, quantidade: 1, valor_saida: 3.0 });
+      .send({ produto_id: produtoId, quantidade: 1, valor_saida: "3" });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
 
@@ -135,7 +135,7 @@ describe('Notificações de validade', () => {
       departamento: 'Teste',
       quantidade: 2,
       validade: validadeProxima,
-      preco: 1.0,
+      preco: "1",
     });
     produtoId = res.body.id;
   });
@@ -220,7 +220,7 @@ describe('Alertas de Ruptura', () => {
       quantidade: 3,
       estoque_minimo: 2,
       validade: '2030-01-01',
-      preco: 1.0
+      preco: "1"
     });
     produtoId = res.body.id;
   });
@@ -250,7 +250,7 @@ describe('Alertas de Ruptura', () => {
       nome: 'Ruptura',
       departamento: 'Teste',
       quantidade: 5,
-      preco: 1.0,
+      preco: "1",
       validade: '2030-01-01',
       fornecedor_id: null,
       estoque_minimo: 2
