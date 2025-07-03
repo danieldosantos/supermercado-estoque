@@ -62,7 +62,11 @@
         const produto_id = document.getElementById('produto').value;
         const dados = Object.fromEntries(new FormData(e.target));
         dados.produto_id = produto_id;
-        dados.valor_saida = parseFloat(dados.valor_saida.replace(/[^0-9,]/g, '').replace(',', '.'));
+        dados.valor_saida = dados.valor_saida.replace(/[^0-9,]/g, '');
+        if (!dados.valor_saida) {
+          alert('Valor da venda inválido.');
+          return;
+        }
 
         const res = await fetch('/api/saidas', {
           method: 'POST',

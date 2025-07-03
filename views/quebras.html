@@ -61,7 +61,11 @@
         const produto_id = document.getElementById('produto').value;
         const dados = Object.fromEntries(new FormData(e.target));
         dados.produto_id = produto_id;
-        dados.valor_quebra = parseFloat(dados.valor_quebra.replace(/[^0-9,]/g, '').replace(',', '.'));
+        dados.valor_quebra = dados.valor_quebra.replace(/[^0-9,]/g, '');
+        if (!dados.valor_quebra) {
+          alert('Valor da quebra inválido.');
+          return;
+        }
 
         const res = await fetch('/api/quebras', {
           method: 'POST',

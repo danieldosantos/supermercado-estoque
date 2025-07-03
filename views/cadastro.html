@@ -75,10 +75,8 @@
         const form = e.target;
         const dados = Object.fromEntries(new FormData(form));
 
-        const precoNumerico = dados.preco.replace(/[^0-9,]/g, '').replace(',', '.');
-        dados.preco = parseFloat(precoNumerico);
-
-        if (isNaN(dados.preco)) {
+        dados.preco = dados.preco.replace(/[^0-9,]/g, '');
+        if (!dados.preco) {
           document.getElementById('msg-erro').innerText = 'Preço unitário inválido.';
           return;
         }
