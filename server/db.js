@@ -80,18 +80,23 @@ db.serialize(() => {
     if (err) {
       console.error('Erro ao verificar usuário admin:', err.message);
     } else if (!row) {
-      const senhaHash = bcrypt.hashSync('admin12345', 10);
-      db.run(
-        `INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?, ?, ?, ?)`,
-        ['Administrador', 'admin', senhaHash, 'admin'],
-        (err) => {
-          if (err) {
-            console.error('Erro ao inserir usuário admin:', err.message);
-          } else {
-            console.log('Usuário admin padrão criado (senha: admin12345)');
-          }
+      bcrypt.hash('admin12345', 10, (err, senhaHash) => {
+        if (err) {
+          console.error('Erro ao gerar hash da senha admin:', err.message);
+          return;
         }
-      );
+        db.run(
+          `INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?, ?, ?, ?)`,
+          ['Administrador', 'admin', senhaHash, 'admin'],
+          (err) => {
+            if (err) {
+              console.error('Erro ao inserir usuário admin:', err.message);
+            } else {
+              console.log('Usuário admin padrão criado (senha: admin12345)');
+            }
+          }
+        );
+      });
     }
   });
 });

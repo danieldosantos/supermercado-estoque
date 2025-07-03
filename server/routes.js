@@ -81,10 +81,12 @@ router.post('/api/login', (req, res) => {
   db.get('SELECT * FROM usuarios WHERE email = ?', [email], (err, user) => {
     if (err) return res.status(500).json({ erro: 'Erro no banco de dados' });
     if (!user) return res.status(401).json({ erro: 'Usuário não encontrado' });
-    const senhaCorreta = bcrypt.compareSync(senha, user.senha_hash);
-    if (!senhaCorreta) return res.status(401).json({ erro: 'Senha inválida' });
-    const token = createSession({ id: user.id, nome: user.nome, role: user.role });
-    res.json({ id: user.id, nome: user.nome, role: user.role, token });
+    bcrypt.compare(senha, user.senha_hash, (err, ok) => {
+      if (err) return res.status(500).json({ erro: 'Erro ao verificar senha' });
+      if (!ok) return res.status(401).json({ erro: 'Senha inválida' });
+      const token = createSession({ id: user.id, nome: user.nome, role: user.role });
+      res.json({ id: user.id, nome: user.nome, role: user.role, token });
+    });
   });
 });
 
@@ -98,11 +100,13 @@ router.post('/api/logout', (req, res) => {
 router.post('/api/usuarios', authMiddleware, adminMiddleware, (req, res) => {
   const { nome, email, senha, role } = req.body;
   function inserir() {
-    const senhaHash = bcrypt.hashSync(senha, 10);
-    const sql = `INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [nome, email, senhaHash, role], function (err) {
-      if (err) return res.status(500).json({ erro: err.message });
-      res.status(201).json({ id: this.lastID });
+    bcrypt.hash(senha, 10, (err, senhaHash) => {
+      if (err) return res.status(500).json({ erro: 'Erro ao criptografar senha' });
+      const sql = `INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?, ?, ?, ?)`;
+      db.run(sql, [nome, email, senhaHash, role], function (err) {
+        if (err) return res.status(500).json({ erro: err.message });
+        res.status(201).json({ id: this.lastID });
+      });
     });
   }
 
@@ -128,13 +132,16 @@ router.put('/api/usuarios/:id/senha', authMiddleware, (req, res) => {
 
   db.get('SELECT senha_hash FROM usuarios WHERE id = ?', [id], (err, row) => {
     if (err) return res.status(500).json({ erro: 'Erro ao buscar usuário' });
-    if (!row || !bcrypt.compareSync(senha_atual, row.senha_hash)) {
-      return res.status(401).json({ erro: 'Senha atual incorreta' });
-    }
-    const novaHash = bcrypt.hashSync(nova_senha, 10);
-    db.run('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [novaHash, id], (err) => {
-      if (err) return res.status(500).json({ erro: 'Erro ao atualizar senha' });
-      res.json({ sucesso: true });
+    bcrypt.compare(senha_atual, row?.senha_hash || '', (err, ok) => {
+      if (err) return res.status(500).json({ erro: 'Erro ao verificar senha' });
+      if (!ok) return res.status(401).json({ erro: 'Senha atual incorreta' });
+      bcrypt.hash(nova_senha, 10, (err, novaHash) => {
+        if (err) return res.status(500).json({ erro: 'Erro ao criptografar senha' });
+        db.run('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [novaHash, id], (err) => {
+          if (err) return res.status(500).json({ erro: 'Erro ao atualizar senha' });
+          res.json({ sucesso: true });
+        });
+      });
     });
   });
 });
