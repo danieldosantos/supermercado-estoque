@@ -95,3 +95,32 @@ describe('Quebras e Saidas', () => {
     expect(res.body).toHaveProperty('id');
   });
 });
+
+describe('Notificações de validade', () => {
+  let produtoId;
+  const validadeProxima = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
+  beforeAll(async () => {
+    const res = await agent.post('/api/produtos').send({
+      nome: 'ValidadeProxima',
+      codigo_barras: '555',
+      departamento: 'Teste',
+      quantidade: 2,
+      validade: validadeProxima,
+      preco: 1.0,
+    });
+    produtoId = res.body.id;
+  });
+
+  afterAll(async () => {
+    await agent.delete(`/api/produtos/${produtoId}`);
+  });
+
+  test('listar produtos próximos do vencimento', async () => {
+    const res = await agent.get('/api/notificacoes/validade');
+    expect(res.status).toBe(200);
+    expect(res.body.some((p) => p.codigo_barras === '555')).toBe(true);
+  });
+});
