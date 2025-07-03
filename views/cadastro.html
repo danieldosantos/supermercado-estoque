@@ -73,9 +73,8 @@
 
       inputPreco.addEventListener('input', () => {
         let v = inputPreco.value.replace(/\D/g, '');
-        v = (parseFloat(v) / 100).toFixed(2) + '';
-        v = v.replace('.', ',');
-        inputPreco.value = 'R$ ' + v;
+        v = parseFloat(v) / 100;
+        inputPreco.value = formatarPreco(v);
       });
 
       document.getElementById('formCadastro').addEventListener('submit', async (e) => {
