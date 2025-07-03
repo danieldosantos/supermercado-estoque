@@ -242,12 +242,20 @@ router.post('/api/quebras', authMiddleware, adminMiddleware, (req, res) => {
   const qtd = parseInt(quantidade, 10) || 0;
   const valorNum = parseFloat(String(valor_quebra).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
 
-  const sql = `INSERT INTO quebras (produto_id, quantidade, valor_quebra) VALUES (?, ?, ?)`;
-  db.run(sql, [produto_id, qtd, valorNum], function (err) {
+  db.get('SELECT quantidade FROM produtos WHERE id = ?', [produto_id], (err, row) => {
     if (err) return res.status(500).json({ erro: err.message });
-    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
-      ['Criação', 'Quebra', `Quebra ID ${this.lastID} criada`, 'Admin']);
-    res.status(201).json({ id: this.lastID });
+    if (!row || row.quantidade < qtd) {
+      return res.status(400).json({ erro: 'Quantidade insuficiente em estoque' });
+    }
+
+    const sql = `INSERT INTO quebras (produto_id, quantidade, valor_quebra) VALUES (?, ?, ?)`;
+    db.run(sql, [produto_id, qtd, valorNum], function (err) {
+      if (err) return res.status(500).json({ erro: err.message });
+      db.run(`UPDATE produtos SET quantidade = quantidade - ? WHERE id = ?`, [qtd, produto_id]);
+      db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+        ['Criação', 'Quebra', `Quebra ID ${this.lastID} criada`, 'Admin']);
+      res.status(201).json({ id: this.lastID });
+    });
   });
 });
 
@@ -308,12 +316,21 @@ router.post('/api/saidas', authMiddleware, adminMiddleware, (req, res) => {
   const { produto_id, quantidade, valor_saida } = req.body;
   const qtd = parseInt(quantidade, 10) || 0;
   const valorNum = parseFloat(String(valor_saida).replace(/[R$\s\.]/g, '').replace(',', '.')) || 0;
-  const sql = `INSERT INTO saidas (produto_id, quantidade, valor_saida) VALUES (?, ?, ?)`;
-  db.run(sql, [produto_id, qtd, valorNum], function (err) {
+
+  db.get('SELECT quantidade FROM produtos WHERE id = ?', [produto_id], (err, row) => {
     if (err) return res.status(500).json({ erro: err.message });
-    db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
-      ['Criação', 'Saída', `Saída ID ${this.lastID} criada`, 'Admin']);
-    res.status(201).json({ id: this.lastID });
+    if (!row || row.quantidade < qtd) {
+      return res.status(400).json({ erro: 'Quantidade insuficiente em estoque' });
+    }
+
+    const sql = `INSERT INTO saidas (produto_id, quantidade, valor_saida) VALUES (?, ?, ?)`;
+    db.run(sql, [produto_id, qtd, valorNum], function (err) {
+      if (err) return res.status(500).json({ erro: err.message });
+      db.run(`UPDATE produtos SET quantidade = quantidade - ? WHERE id = ?`, [qtd, produto_id]);
+      db.run(`INSERT INTO logs (acao, entidade, detalhes, usuario) VALUES (?, ?, ?, ?)`,
+        ['Criação', 'Saída', `Saída ID ${this.lastID} criada`, 'Admin']);
+      res.status(201).json({ id: this.lastID });
+    });
   });
 });
 
